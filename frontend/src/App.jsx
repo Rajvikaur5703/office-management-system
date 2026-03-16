@@ -1,9 +1,11 @@
-import React from "react";
+import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-//common pages
+
+// Common
 import Login from "./pages/Login";
 import Layout from "./pages/Layout";
-//admin pages
+
+// Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEmployee from "./pages/admin/AdminEmployee";
 import AdminTasks from "./pages/admin/AdminTasks";
@@ -12,8 +14,7 @@ import AdminDocument from "./pages/admin/AdminDocument";
 import AdminLeave from "./pages/admin/AdminLeave";
 import AdminDepartment from "./pages/admin/AdminDepartment";
 
-
-//employee pages
+// Employee
 import EmpDashboard from "./pages/employee/EmpDashboard";
 import Tasks from "./pages/employee/Tasks";
 import Attendance from "./pages/employee/Attendance";
@@ -21,127 +22,35 @@ import Leave from "./pages/employee/Leave";
 import Profile from "./pages/employee/Profile";
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-          {/* Login */}
-        <Route path="/" element={<Login />} />
-
-        {/* Admin Routes */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <Layout role="admin">
-              <AdminDashboard />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/admin/employee"
-          element={
-            <Layout role="admin">
-              <AdminEmployee />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/admin/tasks"
-          element={
-            <Layout role="admin">
-              <AdminTasks />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/admin/attendance"
-          element={
-            <Layout role="admin">
-              <AdminAttendance />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/admin/department"
-          element={
-            <Layout role="admin">
-              <AdminDepartment />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/admin/documents"
-          element={
-            <Layout role="admin">
-              <AdminDocument />
-            </Layout>
-          }
-        />
-
-         <Route path="/admin/leave" 
-         element={
-          <Layout role="admin">
-          <AdminLeave />
-          </Layout>} 
-          />
-      
  
+  return (
+   <BrowserRouter>
+      <Routes>
+        {/* Public Route */}
+        <Route path='/' element={<Login />} />
 
-        {/* Employee Dashboard */}
-        <Route
-          path="/dashboard"
-          element={
-            <Layout role="employee">
-              <EmpDashboard />
-            </Layout>
-          }
-        />
+        {/* Admin Routes - All wrapped in one Admin Layout */}
+        <Route path="/admin" element={<Layout role="admin" />}>
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="employee" element={<AdminEmployee />} />
+          <Route path="tasks" element={<AdminTasks />} />
+          <Route path="attendance" element={<AdminAttendance />} />
+          <Route path="department" element={<AdminDepartment />} />
+          <Route path="documents" element={<AdminDocument />} />
+          <Route path="leave" element={<AdminLeave />} />
+        </Route>
 
-        {/* Employee Tasks */}
-        <Route
-          path="/tasks"
-          element={
-            <Layout role="employee">
-              <Tasks />
-            </Layout>
-          }
-        />
-
-        {/* Employee Attendance */}
-        <Route
-          path="/attendance"
-          element={
-            <Layout role="employee">
-              <Attendance />
-            </Layout>
-          }
-        />
-
-        {/* Employee Documents */}
-        <Route
-          path="/leave"
-          element={
-            <Layout role="employee">
-              <Leave />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/profile"
-          element={
-            <Layout role="employee">
-              <Profile />
-            </Layout>
-          }
-        />
+        {/* Employee Routes - All wrapped in one Employee Layout */}
+        <Route element={<Layout role="employee" />}>
+          <Route path="dashboard" element={<EmpDashboard />} />
+          <Route path="tasks" element={<Tasks />} />
+          <Route path="attendance" element={<Attendance />} />
+          <Route path="leave" element={<Leave />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
       </Routes>
-    </BrowserRouter>
-  );
+   </BrowserRouter>
+  )
 }
 
-export default App;
+export default App

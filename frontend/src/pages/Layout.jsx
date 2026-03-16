@@ -1,15 +1,18 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 
-function Layout({ children, role }) {
+function Layout({ role }) {
   return (
-    <>
+    <div className="layout-wrapper" style={{ display: "flex" }}>
+      {/* Sidebar stays fixed on the side */}
       <Sidebar role={role} />
 
-      <div className="layout-content">
-        {children}
+      {/* Main content area changes based on the URL */}
+      <div className="layout-content" style={{ flex: 1, padding: "20px" }}>
+        <Outlet /> 
       </div>
-    </>
+    </div>
   );
 }
 

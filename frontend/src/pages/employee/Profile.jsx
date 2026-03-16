@@ -1,104 +1,88 @@
-import { useState } from "react";
-import '../../assets/styles/employee/profile.css';
+import React, { useState } from "react";
 
 function Profile() {
-
   const [profile, setProfile] = useState({
     name: "Sadiya Syed",
-    id: "17",
-    department: "HR",
+    id: "EMP-017",
+    department: "Human Resources",
     email: "sadiya@email.com",
     phone: "9876543210",
-    address: "Palanpur"
+    address: "Palanpur, Gujarat"
   });
 
   const handleChange = (e) => {
-    setProfile({
-      ...profile,
-      [e.target.name]: e.target.value
-    });
+    setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
   return (
-    <div className="profile-container">
+    <div className="container py-5">
+      <div className="row justify-content-center">
+        <div className="col-lg-10">
+          <div className="card shadow-sm border-0 overflow-hidden">
+            <div className="row g-0">
+              
+              {/* Left Sidebar: Profile Picture & Basic Info */}
+              <div className="col-md-4 bg-primary text-white text-center p-5">
+                <div className="mb-4">
+                  <div className="bg-white rounded-circle d-inline-flex align-items-center justify-content-center shadow" style={{ width: '120px', height: '120px' }}>
+                    <i className="bi bi-person-fill text-primary display-1"></i>
+                  </div>
+                </div>
+                <h3 className="fw-bold mb-1">{profile.name}</h3>
+                <p className="text-white-50 mb-4">{profile.department}</p>
+                <div className="badge bg-white text-primary px-3 py-2 rounded-pill">
+                  ID: {profile.id}
+                </div>
+              </div>
 
-      <h2>Employee Profile</h2>
+              {/* Right Side: Editable Details */}
+              <div className="col-md-8 p-4 p-md-5 bg-white">
+                <h4 className="fw-bold mb-4 text-secondary border-bottom pb-2">Personal Details</h4>
+                
+                <form className="row g-3">
+                  <div className="col-md-6">
+                    <label className="form-label small fw-bold text-muted">Full Name</label>
+                    <input type="text" name="name" className="form-control bg-light" value={profile.name} onChange={handleChange} />
+                  </div>
+                  
+                  <div className="col-md-6">
+                    <label className="form-label small fw-bold text-muted">Employee ID</label>
+                    <input type="text" name="id" className="form-control bg-light" value={profile.id} onChange={handleChange} readOnly />
+                    <small className="text-muted" style={{fontSize: '10px'}}>Contact Admin to change ID</small>
+                  </div>
 
-      <table className="profile-table">
+                  <div className="col-md-6">
+                    <label className="form-label small fw-bold text-muted">Department</label>
+                    <input type="text" name="department" className="form-control bg-light" value={profile.department} onChange={handleChange} />
+                  </div>
 
-        <tbody>
+                  <div className="col-md-6">
+                    <label className="form-label small fw-bold text-muted">Email Address</label>
+                    <input type="email" name="email" className="form-control bg-light" value={profile.email} onChange={handleChange} />
+                  </div>
 
-          <tr>
-            <td>Name</td>
-            <td>
-              <input type="text" name="name" value={profile.name} onChange={handleChange} />
-            </td>
-          </tr>
+                  <div className="col-md-6">
+                    <label className="form-label small fw-bold text-muted">Phone Number</label>
+                    <input type="text" name="phone" className="form-control bg-light" value={profile.phone} onChange={handleChange} />
+                  </div>
 
-          <tr>
-            <td>Id</td>
-            <td>
-              <input
-                type="text"
-                name="id"
-                value={profile.id}
-                onChange={handleChange}
-              />
-            </td>
-          </tr>
+                  <div className="col-md-6">
+                    <label className="form-label small fw-bold text-muted">City/Address</label>
+                    <input type="text" name="address" className="form-control bg-light" value={profile.address} onChange={handleChange} />
+                  </div>
 
-          <tr>
-            <td>Department</td>
-            <td>
-              <input
-                type="text"
-                name="department"
-                value={profile.department}
-                onChange={handleChange}
-              />
-            </td>
-          </tr>
+                  <div className="col-12 mt-4 pt-3 border-top">
+                    <button type="button" className="btn btn-primary px-4 shadow-sm" onClick={() => alert("Profile Updated!")}>
+                      Update Profile
+                    </button>
+                  </div>
+                </form>
+              </div>
 
-          <tr>
-            <td>Email</td>
-            <td>
-              <input
-                type="email"
-                name="email"
-                value={profile.email}
-                onChange={handleChange}
-              />
-            </td>
-          </tr>
-
-          <tr>
-            <td>Phone</td>
-            <td>
-              <input
-                type="text"
-                name="phone"
-                value={profile.phone}
-                onChange={handleChange}
-              />
-            </td>
-          </tr>
-
-          <tr>
-            <td>Address</td>
-            <td>
-              <input
-                type="text"
-                name="address"
-                value={profile.address}
-                onChange={handleChange}
-              />
-            </td>
-          </tr>
-
-        </tbody>
-
-      </table>
-
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

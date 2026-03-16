@@ -1,194 +1,107 @@
 import React, { useState } from "react";
-import "../../assets/styles/admin/admindepartment.css";
 
-function AdminDepartment() {
-
-  const [departments, setDepartments] = useState([
-    { id: 1, name: "HR" },
-    { id: 2, name: "IT" },
-    { id: 3, name: "Finance" }
+function AdminEmployee() {
+  const [employees, setEmployees] = useState([
+    { id: 101, name: "Rahul Sharma", email: "rahul@company.com", dept: "IT" },
+    { id: 102, name: "Priya Singh", email: "priya@company.com", dept: "HR" },
   ]);
 
+  const [formData, setFormData] = useState({ name: "", email: "", dept: "IT" });
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [departmentName, setDepartmentName] = useState("");
 
-  const handleInputChange = (e) => {
-    setDepartmentName(e.target.value);
+  // Handle input changes easily
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const saveDepartment = () => {
-
-    if (!departmentName.trim()) {
-      alert("Please enter department name");
-      return;
-    }
-
-    if (editingId) {
-
-      const updatedDepartments = departments.map((dep) =>
-        dep.id === editingId ? { ...dep, name: departmentName } : dep
-      );
-
-      setDepartments(updatedDepartments);
-      setEditingId(null);
-
-    } else {
-
-      const newDepartment = {
-  id: departments.length > 0 ? departments[departments.length - 1].id + 1 : 1,
-  name: departmentName
-};
-
-      setDepartments([...departments, newDepartment]);
-    }
-
-    setDepartmentName("");
+  // Add Employee
+  const handleAdd = (e) => {
+    e.preventDefault();
+    const newEmp = { ...formData, id: Date.now() };
+    setEmployees([...employees, newEmp]);
+    setFormData({ name: "", email: "", dept: "IT" }); // Reset form
     setShowForm(false);
   };
 
-  const editDepartment = (id) => {
-
-    const dep = departments.find((d) => d.id === id);
-
-    setDepartmentName(dep.name);
-    setEditingId(id);
-    setShowForm(true);
-  };
-
-  const deleteDepartment = (id) => {
-
-    if (window.confirm("Are you sure you want to delete this department?")) {
-      setDepartments(departments.filter((d) => d.id !== id));
+  const deleteEmployee = (id) => {
+    if (window.confirm("Remove this employee?")) {
+      setEmployees(employees.filter((emp) => emp.id !== id));
     }
-
-  };
-
-  const cancelForm = () => {
-    setShowForm(false);
-    setEditingId(null);
-    setDepartmentName("");
   };
 
   return (
-
-    <div className="main-content">
-
-      <div className="header">
-        <h2>Department List</h2>
-
-        <button
-          className="add-button"
-          onClick={() => setShowForm(true)}
+    <div className="container-fluid py-4">
+      {/* Page Header */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="fw-bold">Employee Directory</h2>
+        <button 
+          className={`btn ${showForm ? "btn-secondary" : "btn-primary"}`} 
+          onClick={() => setShowForm(!showForm)}
         >
-          + Add Department
+          {showForm ? "Close Form" : "+ Add New Employee"}
         </button>
-
       </div>
 
-
+      {/* Add Employee Form */}
       {showForm && (
-
-        <div className="form-container">
-
-          <h3>{editingId ? "Edit Department" : "Add New Department"}</h3>
-
-          <div className="form-group">
-            <label>Department Name</label>
-
-            <input
-              type="text"
-              value={departmentName}
-              onChange={handleInputChange}
-              placeholder="Enter department name"
-            />
-
+        <div className="card shadow-sm border-0 mb-4">
+          <div className="card-body bg-light">
+            <form onSubmit={handleAdd} className="row g-3">
+              <div className="col-md-4">
+                <input name="name" className="form-control" placeholder="Full Name" onChange={handleChange} required />
+              </div>
+              <div className="col-md-4">
+                <input name="email" type="email" className="form-control" placeholder="Email Address" onChange={handleChange} required />
+              </div>
+              <div className="col-md-3">
+                <select name="dept" className="form-select" onChange={handleChange}>
+                  <option value="IT">IT</option>
+                  <option value="HR">HR</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Marketing">Marketing</option>
+                </select>
+              </div>
+              <div className="col-md-1">
+                <button type="submit" className="btn btn-success w-100">Add</button>
+              </div>
+            </form>
           </div>
-
-          <div className="form-buttons">
-
-            <button
-              className="save-button"
-              onClick={saveDepartment}
-            >
-              {editingId ? "Update" : "Save"}
-            </button>
-
-            <button
-              className="cancel-button"
-              onClick={cancelForm}
-            >
-              Cancel
-            </button>
-
-          </div>
-
         </div>
-
       )}
 
-
-      {departments.length > 0 ? (
-
-        <div className="table-wrapper">
-
-          <table className="department-table">
-
-            <thead>
+      {/* Employee Table */}
+      <div className="card shadow-sm border-0">
+        <div className="table-responsive">
+          <table className="table table-hover align-middle mb-0">
+            <thead className="table-dark">
               <tr>
-                <th>ID</th>
-                <th>Department Name</th>
-                <th>Action</th>
+                <th className="ps-4">ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th className="text-end pe-4">Actions</th>
               </tr>
             </thead>
-
             <tbody>
-
-              {departments.map((dep) => (
-
-                <tr key={dep.id}>
-
-                  <td>{dep.id}</td>
-                  <td>{dep.name}</td>
-
-                  <td className="action-buttons">
-
-                    <button
-                      className="edit-button"
-                      onClick={() => editDepartment(dep.id)}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="delete-button"
-                      onClick={() => deleteDepartment(dep.id)}
-                    >
+              {employees.map((emp) => (
+                <tr key={emp.id}>
+                  <td className="ps-4 text-muted small">{emp.id}</td>
+                  <td className="fw-bold">{emp.name}</td>
+                  <td>{emp.email}</td>
+                  <td><span className="badge bg-info-subtle text-info px-3">{emp.dept}</span></td>
+                  <td className="text-end pe-4">
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => deleteEmployee(emp.id)}>
                       Delete
                     </button>
-
                   </td>
-
                 </tr>
-
               ))}
-
             </tbody>
-
           </table>
-
         </div>
-
-      ) : (
-
-        <p className="no-data">No departments found.</p>
-
-      )}
-
+      </div>
     </div>
-
   );
-
 }
 
-export default AdminDepartment;
+export default AdminEmployee;
