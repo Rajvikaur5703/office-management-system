@@ -1,0 +1,67 @@
+.admin-leave {
+  margin-left: 260px;   /* space for sidebar */
+  padding: 20px;
+}
+
+.admin-leave h2 {
+  margin-bottom: 20px;
+  color: #1e293b;
+}
+
+/* Table */
+.leave-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Table header */
+.leave-table th {
+  background: #1e293b;
+  color: white;
+  padding: 12px;
+  text-align: center;
+}
+
+/* Table cells */
+.leave-table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Alternate rows */
+.leave-table tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+/* Buttons */
+.approve-btn {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  margin-right: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.reject-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Hover effects */
+.approve-btn:hover {
+  background: #16a34a;
+}
+
+.reject-btn:hover {
+  background: #dc2626;
+}

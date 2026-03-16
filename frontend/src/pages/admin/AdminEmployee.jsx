@@ -9,6 +9,7 @@ function AdminEmployee() {
     ]);
 
     const [showForm, setShowForm] = useState(false);
+    const [editingId, setEditingId] = useState(null);
     const [newEmployee, setNewEmployee] = useState({
         name:"",
         email:"",
@@ -25,29 +26,36 @@ function AdminEmployee() {
     };
 
     //add new employee - FIXED
-    const addEmployee = () => {
+    const saveEmployee = () => {
         //simple validation
         if(!newEmployee.name || !newEmployee.email || !newEmployee.department){
             alert("Please fill all fields");
             return;
         }
 
-        //create new employee with new id - FIXED (was using employees.name instead of newEmployee.name)
-        const employeeToAdd = {
-            id: employees.length + 1, //simple id generation
-            name: newEmployee.name,    // Changed from employees.name to newEmployee.name
-            email: newEmployee.email,  // Changed from employees.email to newEmployee.email
-            department: newEmployee.department // Changed from employees.department to newEmployee.department
+        if(editingId){
+            const updatedEmployees = employees.map(emp =>
+            emp.id === editingId ? { ...emp, ...newEmployee } : emp
+        );
+        setEmployees(updatedEmployees);
+        setEditingId(null); // Reset editing
+        }   else {
+            const employeeToAdd = {
+            id: employees.length > 0 ? employees[employees.length - 1].id + 1 : 1,
+            ...newEmployee
         };
-
-        //add to list - FIXED (was missing spread operator)
-        setEmployees([...employees, employeeToAdd]); // Added spread operator
-
-        //clear form and hide it 
-        setNewEmployee({name:"", email:"", department:""});
-        setShowForm(false);
+        setEmployees([...employees, employeeToAdd]);
+        }    
+        setNewEmployee({ name: "", email: "", department: "" });
+    setShowForm(false); 
     };
 
+    const editEmployee = (id) => {
+        const emp = employees.find(e => e.id ===id);
+        setNewEmployee({name: emp.name, email: emp.email, department: emp.department});
+        setEditingId(id);
+        setShowForm(true);
+    }
     // Delete employee
     const deleteEmployee = (id) => {
         if (window.confirm("Are you sure?")) {
@@ -105,7 +113,11 @@ function AdminEmployee() {
                     </div>
 
                     <div className="form-buttons">
-                        <button className="save-button" onClick={addEmployee}>Save</button>
+                        <button 
+                        className="save-button" 
+                        onClick={saveEmployee}>
+                        {editingId ? "Update" : "Save"}
+                        </button>
                         <button className="cancel-button" onClick={()=> setShowForm(false)}>Cancel</button>
                     </div>
                 </div>
@@ -131,10 +143,7 @@ function AdminEmployee() {
                                 <td>{emp.email}</td>
                                 <td>{emp.department}</td>
                                 <td>
-                                    <button className="edit-button">
-                                        Edit
-                                    </button>
-                                    <button 
+                                <button className="edit-button" onClick={() => editEmployee(emp.id)}>Edit</button>                                  <button 
                                         className="delete-button"
                                         onClick={() => deleteEmployee(emp.id)}
                                     >

@@ -1,27 +1,29 @@
+/* ================= Sidebar ================= */
 .sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
   width: 260px;
   height: 100vh;
   background: #1e293b;
-  color: white;
+  position: fixed;
+  left: 0;
+  top: 0;
 }
 
-/* Heading */
+/* ================= Logo / Heading ================= */
 .logo {
+  color: #ffffff;
   text-align: center;
   font-size: 22px;
   font-weight: 600;
-  margin-top: 20px; /* space above heading */
+  margin-top: 20px;
   margin-bottom: 20px;
 }
 
-/* Menu list */
+/* ================= Menu List ================= */
 .menu {
   list-style: none;
   padding: 0;
   margin: 0;
+  flex: 1; /* grow to fill sidebar */
 }
 
 /* Menu items */
@@ -29,17 +31,25 @@
   margin: 6px 12px;
 }
 
-/* Links */
+/* Links inside menu */
 .menu li a {
   display: block;
   padding: 10px 15px;
   text-decoration: none;
   color: #cbd5f5;
   border-radius: 5px;
+  transition: 0.2s;
 }
 
-/* Hover */
+/* Hover effect for menu links */
 .menu li a:hover {
   background: #334155;
   color: #ffffff;
+}
+
+/* Active / Selected link */
+.menu li a.active {
+  background: #2563eb;
+  color: white;
+  font-weight: 500;
 }

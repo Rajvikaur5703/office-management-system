@@ -8,7 +8,9 @@ console.log("Sidebar role:", role);
   { name: "Dashboard", path: "/admin/dashboard" },
   { name: "Employees", path: "/admin/employee" },
   { name: "Tasks", path: "/admin/tasks" },
+  { name: "Department", path: "/admin/department" },
   { name: "Attendance", path: "/admin/attendance" },
+  { name: "Leave", path: "/admin/leave" },
   { name: "Documents", path: "/admin/documents" },
 ];
 

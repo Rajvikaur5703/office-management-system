@@ -1,6 +1,7 @@
 import React from "react";
 import "../../assets/styles/admin/admindashboard.css";
 
+
 function AdminDashboard() {
     return (
         <div className="dashboard">
@@ -27,6 +28,7 @@ function AdminDashboard() {
                     <p>7</p>
                 </div>
             </div>
+           
 
             <div className="activity">
                 <h2>Recent Activity</h2>

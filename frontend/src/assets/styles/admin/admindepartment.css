@@ -1,0 +1,171 @@
+/* Container */
+
+.container {
+  position: relative;
+  margin-left: 270px;   /* push content after sidebar */
+  padding: 30px;
+  background: #f1f5f9;
+  min-height: 100vh;
+  width: calc(100% - 270px);
+  box-sizing: border-box;
+}
+
+
+/* Header */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header h2 {
+  color: #1e293b;
+  font-size: 24px;
+}
+
+
+/* Add Button */
+
+.add-button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.add-button:hover {
+  background: #1d4ed8;
+}
+
+
+/* Form */
+
+.form-container {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 5px;
+}
+
+
+/* Buttons */
+
+.form-buttons {
+  margin-top: 15px;
+}
+
+.save-button {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.save-button:hover {
+  background: #059669;
+}
+
+.cancel-button {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 9px 16px;
+  border-radius: 5px;
+}
+
+.cancel-button:hover {
+  background: #dc2626;
+}
+
+
+/* Table */
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.department-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.department-table th,
+.department-table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.department-table th {
+  background: #1e293b;
+  color: white;
+}
+
+.department-table tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+
+/* Buttons */
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-button {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.edit-button:hover {
+  background: #d97706;
+}
+
+.delete-button {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.delete-button:hover {
+  background: #dc2626;
+}
+
+
+/* No Data */
+
+.no-data {
+  margin-top: 20px;
+  color: #6b7280;
+}

@@ -1,5 +1,4 @@
 /* ================= Container ================= */
-/* ================= Container ================= */
 .container{
   margin-left:260px;
   padding:30px;
@@ -133,6 +132,23 @@
 
 .employee-table tr:hover{
   background:#f1f5f9;
+}
+
+/* Edit button */
+.edit-button {
+    padding: 4px 8px;
+    margin-right: 5px;
+    background-color: #2196f3;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.2s;
+}
+
+.edit-button:hover {
+    background-color: #1976d2;
 }
 
 /* ================= Delete Button ================= */
@@ -295,20 +311,38 @@
   background:#f1f5f9;
 }
 
-/* ================= Delete Button ================= */
-.delete-button{
-  background:#ef4444;
-  color:white;
-  border:none;
-  padding:6px 12px;
-  border-radius:4px;
-  cursor:pointer;
+/* ================= Action Buttons (Edit/Delete) ================= */
+.edit-button,
+.delete-button {
+    padding: 6px 12px;       /* same height/width */
+    border-radius: 4px;      /* same rounding */
+    font-size: 0.9rem;       /* same font size */
+    font-weight: 500;        /* same weight */
+    cursor: pointer;
+    border: none;            /* remove default border */
+    transition: 0.2s;
+    margin-right: 5px;       /* spacing between buttons */
 }
 
-.delete-button:hover{
-  background:#dc2626;
+/* Edit button color */
+.edit-button {
+    background-color: #f59e0b;  /* Amber/Orange */
+    color: white;
 }
 
+.edit-button:hover {
+    background-color: #d97706;  /* Darker amber on hover */
+}
+
+/* Delete button color */
+.delete-button {
+    background-color: #ef4444;  /* Red */
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #dc2626;  /* Darker red on hover */
+}
 /* ================= No Data ================= */
 .no-data{
   margin-top:20px;

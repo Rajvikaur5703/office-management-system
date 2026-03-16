@@ -9,6 +9,9 @@ import AdminEmployee from "./pages/admin/AdminEmployee";
 import AdminTasks from "./pages/admin/AdminTasks";
 import AdminAttendance from "./pages/admin/AdminAttendance";
 import AdminDocument from "./pages/admin/AdminDocument";
+import AdminLeave from "./pages/admin/AdminLeave";
+import AdminDepartment from "./pages/admin/AdminDepartment";
+
 
 //employee pages
 import EmpDashboard from "./pages/employee/EmpDashboard";
@@ -62,6 +65,15 @@ function App() {
         />
 
         <Route
+          path="/admin/department"
+          element={
+            <Layout role="admin">
+              <AdminDepartment />
+            </Layout>
+          }
+        />
+
+        <Route
           path="/admin/documents"
           element={
             <Layout role="admin">
@@ -69,6 +81,13 @@ function App() {
             </Layout>
           }
         />
+
+         <Route path="/admin/leave" 
+         element={
+          <Layout role="admin">
+          <AdminLeave />
+          </Layout>} 
+          />
       
  
 

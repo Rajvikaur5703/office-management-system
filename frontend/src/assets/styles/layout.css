@@ -1,19 +1,21 @@
-/* sidebar width */
-.sidebar{
-  width:260px;
-  height:100vh;
-  position:fixed;
-  left:0;
-  top:0;
-  background:#1e293b;
-  color:white;
+.layout {
+  display: flex;
 }
 
-/* content area */
-.layout-content{
-  margin-left:260px;
-  padding:30px;
-  background:#f1f5f9;
-  min-height:100vh;
-  box-sizing:border-box;
+/* Sidebar */
+
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: #1e293b;
+  color: white;
+}
+
+/* Main content */
+
+.main-content {
+  flex: 1;
+  padding: 30px;
+  background: #f1f5f9;
+  min-height: 100vh;
 }
