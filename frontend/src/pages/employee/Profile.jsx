@@ -5,11 +5,11 @@ function Profile() {
 
   const [profile, setProfile] = useState({
     name: "Sadiya Syed",
-    id:"17",
+    id: "17",
     department: "HR",
     email: "sadiya@email.com",
     phone: "9876543210",
-    address:"Palanpur"
+    address: "Palanpur"
   });
 
   const handleChange = (e) => {
@@ -22,7 +22,7 @@ function Profile() {
   return (
     <div className="profile-container">
 
-      {/* <h2>Employee Profile</h2> */}
+      <h2>Employee Profile</h2>
 
       <table className="profile-table">
 
@@ -30,72 +30,13 @@ function Profile() {
 
           <tr>
             <td>Name</td>
-            <td>ID</td>
-            <td>Department</td>
-            <td>Email</td>
-            <td>Phone</td>
-            <td>Address</td>
-            {/* <td>
-              <input
-                type="text"
-                name="name"
-                value={profile.name}
-                onChange={handleChange}
-              />
-            </td> */}
+            <td>
+              <input type="text" name="name" value={profile.name} onChange={handleChange} />
+            </td>
           </tr>
 
           <tr>
-            <td><input
-                type="text"
-                name="name"
-                value={profile.name}
-                onChange={handleChange}
-              /></td>
-              <td>
-              <input
-                type="text"
-                name="id"
-                value={profile.id}
-                onChange={handleChange}
-              />
-            </td>
-            <td>
-              <input
-                type="text"
-                name="department"
-                value={profile.department}
-                onChange={handleChange}
-              />
-            </td>
-            <td>
-              <input
-                type="email"
-                name="email"
-                value={profile.email}
-                onChange={handleChange}
-              />
-            </td>
-            <td>
-              <input
-                type="text"
-                name="phone"
-                value={profile.phone}
-                onChange={handleChange}
-              />
-            </td>
-            <td>
-              <input
-                type="text"
-                name="address"
-                value={profile.address}
-                onChange={handleChange}
-              />
-            </td>
-          </tr>
-
-          {/* <tr>
-            <td>ID</td>
+            <td>Id</td>
             <td>
               <input
                 type="text"
@@ -153,10 +94,6 @@ function Profile() {
               />
             </td>
           </tr>
-
-          <tr>
-            <td><button className="save-btn">Save Changes</button></td>
-          </tr> */}
 
         </tbody>
 
