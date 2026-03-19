@@ -15,12 +15,12 @@ function Sidebar({ role }) {
       { name: "Leave", path: "/admin/leave" },
       { name: "Documents", path: "/admin/documents" },
     ],
-    employee: [
-      { name: "Dashboard", path: "/dashboard" },
-      { name: "Tasks", path: "/tasks" },
-      { name: "Attendance", path: "/attendance" },
-      { name: "Leave", path: "/leave" },
-      { name: "Profile", path: "/profile" },
+    user: [
+      { name: "Dashboard", path: "/employee/dashboard" },
+      { name: "Tasks", path: "/employee/tasks" },
+      { name: "Attendance", path: "/employee/attendance" },
+      { name: "Leave", path: "/employee/leave" },
+      { name: "Profile", path: "/employee/profile" },
     ],
   };
 

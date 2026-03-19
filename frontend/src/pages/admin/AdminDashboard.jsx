@@ -1,19 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function AdminDashboard() {
-  // Stat cards data to keep the JSX clean
-  const stats = [
-    { title: "Total Employees", value: "25", color: "primary", icon: "bi-people" },
-    { title: "Total Tasks", value: "18", color: "success", icon: "bi-list-task" },
-    { title: "Present Today", value: "18", color: "info", icon: "bi-check-circle" },
-    { title: "Pending Tasks", value: "7", color: "warning", icon: "bi-clock-history" },
-  ];
+  const navigate = useNavigate();
+
+  const [stats, setStats] = useState([]);
+  const [activities, setActivities] = useState([]);
+
+  // Check admin role
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+    if (role !== "admin") {
+      navigate("/");
+    }
+  }, [navigate]);
+
+  // ✅ Sample Stats Data
+  useEffect(() => {
+    const sampleStats = [
+      { title: "Total Employees", value: 25, color: "primary" },
+      { title: "Total Tasks", value: 120, color: "success" },
+      { title: "Present Today", value: 18, color: "info" },
+      { title: "Pending Tasks", value: 7, color: "warning" },
+    ];
+
+    setStats(sampleStats);
+  }, []);
+
+  // ✅ Sample Activities Data
+  useEffect(() => {
+    const sampleActivities = [
+      { message: "John added a new task" },
+      { message: "Admin created a new employee" },
+      { message: "Task marked as completed" },
+      { message: "Meeting scheduled at 3 PM" },
+    ];
+
+    setActivities(sampleActivities);
+  }, []);
 
   return (
     <div className="container-fluid py-4">
       <h1 className="fw-bold mb-4">Admin Dashboard</h1>
 
-      {/* Stats Cards Row */}
+      {/* Stats Cards */}
       <div className="row g-4 mb-5">
         {stats.map((stat, index) => (
           <div key={index} className="col-12 col-sm-6 col-xl-3">
@@ -29,7 +59,7 @@ function AdminDashboard() {
         ))}
       </div>
 
-      {/* Recent Activity Section */}
+      {/* Activities */}
       <div className="row">
         <div className="col-12 col-lg-8">
           <div className="card shadow-sm border-0">
@@ -38,30 +68,11 @@ function AdminDashboard() {
             </div>
             <div className="card-body">
               <ul className="list-group list-group-flush">
-                <li className="list-group-item px-0 py-3 d-flex align-items-center">
-                  <div className="bg-primary-subtle text-primary rounded-circle p-2 me-3">
-                    <i className="bi bi-person-plus"></i>
-                  </div>
-                  <span>Employee <strong>Rahul</strong> was added to the system.</span>
-                </li>
-                <li className="list-group-item px-0 py-3 d-flex align-items-center">
-                  <div className="bg-success-subtle text-success rounded-circle p-2 me-3">
-                    <i className="bi bi-clipboard-check"></i>
-                  </div>
-                  <span>Task assigned to <strong>HR Team</strong>.</span>
-                </li>
-                <li className="list-group-item px-0 py-3 d-flex align-items-center">
-                  <div className="bg-info-subtle text-info rounded-circle p-2 me-3">
-                    <i className="bi bi-calendar-event"></i>
-                  </div>
-                  <span>Attendance records updated for today.</span>
-                </li>
-                <li className="list-group-item px-0 py-3 d-flex align-items-center">
-                  <div className="bg-warning-subtle text-warning rounded-circle p-2 me-3">
-                    <i className="bi bi-file-earmark-arrow-up"></i>
-                  </div>
-                  <span>New document <strong>Policy_2026.pdf</strong> uploaded.</span>
-                </li>
+                {activities.map((act, index) => (
+                  <li key={index} className="list-group-item px-0 py-3">
+                    {act.message}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>

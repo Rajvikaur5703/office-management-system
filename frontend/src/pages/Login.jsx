@@ -4,21 +4,57 @@ import { useNavigate } from "react-router-dom";
 function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ username: "", password: "" });
+  const [errorMessage, setErrorMessage] = useState("");
 
+  // Handle input changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = (e) => {
+  // Handle login
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorMessage(""); // Clear previous errors
+
     const { username, password } = formData;
 
-    if (username === "admin" && password === "1234") {
-      navigate("/admin/dashboard");
-    } else if (username === "employee" && password === "5678") {
-      navigate("/dashboard");
-    } else {
-      alert("Invalid credentials. Try again!");
+    try {
+      // Send login request
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: username.trim().toLowerCase(), password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Login success:", data);
+
+        // Extract role from user object
+        const role = data.user.role;
+
+        // Store token and role in localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", role);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // Redirect based on role
+        if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else if (role === "user") {
+          navigate("/employee/dashboard");
+        } else {
+          setErrorMessage("Unknown user role. Cannot redirect.");
+          console.warn("Unknown role:", role);
+        }
+      } else {
+        // If login failed
+        setErrorMessage(data.msg || "Invalid credentials. Try again!");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrorMessage("Cannot connect to server. Is your backend running?");
     }
   };
 
@@ -27,25 +63,30 @@ function Login() {
       <div className="card shadow-lg border-0" style={{ maxWidth: "400px", width: "100%" }}>
         <div className="card-body p-5">
           <h2 className="text-center fw-bold mb-4 text-primary">Welcome Back</h2>
-          <p className="text-center text-muted mb-4">Please enter your details</p>
-          
+          <p className="text-center text-muted mb-4">Office Management System</p>
+
+          {/* Error message */}
+          {errorMessage && (
+            <div className="alert alert-danger py-2 text-center" role="alert">
+              {errorMessage}
+            </div>
+          )}
+
           <form onSubmit={handleLogin}>
-            {/* Username Field */}
             <div className="form-floating mb-3">
               <input
                 name="username"
                 type="text"
                 className="form-control"
                 id="userInput"
-                placeholder="Username"
+                placeholder="Email/Username"
                 value={formData.username}
                 onChange={handleChange}
                 required
               />
-              <label htmlFor="userInput">Username</label>
+              <label htmlFor="userInput">Username (Email)</label>
             </div>
 
-            {/* Password Field */}
             <div className="form-floating mb-4">
               <input
                 name="password"
@@ -64,9 +105,6 @@ function Login() {
               Login
             </button>
           </form>
-        </div>
-        <div className="card-footer bg-white py-3 text-center border-0">
-          <small className="text-muted">ERP System v1.0</small>
         </div>
       </div>
     </div>

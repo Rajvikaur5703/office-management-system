@@ -41,7 +41,8 @@ function App() {
         </Route>
 
         {/* Employee Routes - All wrapped in one Employee Layout */}
-        <Route element={<Layout role="employee" />}>
+        <Route path="/employee" element={<Layout role="user" />}>
+        <Route index element={<EmpDashboard />} />
           <Route path="dashboard" element={<EmpDashboard />} />
           <Route path="tasks" element={<Tasks />} />
           <Route path="attendance" element={<Attendance />} />
