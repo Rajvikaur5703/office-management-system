@@ -1,27 +1,24 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
-const connectDB = require("./config/db");
-const authRoutes = require("./routes/authRoutes");
-
-dotenv.config();
-connectDB();
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const authRoutes = require('./routes/authRoutes');
+const empRoutes = require('./routes/empRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const connectDB= require("./config/db");
 
 const app = express();
 
 // Middleware
-app.use(express.json());
+connectDB();
 app.use(cors());
+app.use(express.json());
+app.use('/api/employees', empRoutes);
+app.use('/api/admin', adminRoutes);
 
-// Only Auth Routes (Login/Register)
-app.use("/api/auth", authRoutes);
+// Routes
+app.use('/api/auth', authRoutes);
 
-// Test route
-app.get("/", (req, res) => {
-    res.send("Auth API is running...");
-});
-
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
