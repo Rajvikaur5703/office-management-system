@@ -9,11 +9,17 @@ const connectDB= require("./config/db");
 const app = express();
 
 // Middleware
+<<<<<<< Updated upstream
 connectDB();
 app.use(cors());
 app.use(express.json());
 app.use('/api/employees', empRoutes);
 app.use('/api/admin', adminRoutes);
+=======
+app.use(cors());  // 1. Allow React to talk to Node
+app.use(express.json());  // 2. Allow Node to read the JSON data you send
+
+>>>>>>> Stashed changes
 
 // Routes
 app.use('/api/auth', authRoutes);

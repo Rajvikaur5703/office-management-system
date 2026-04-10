@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+<<<<<<< Updated upstream
     name: {type: String, required: true},
     email:{type:String, required:true, unique: true},
     password:{type:String, required:true},
@@ -13,6 +14,14 @@ const userSchema = new mongoose.Schema({
     department: {type: String},
     createdAt: {type: Date, default: Date.now}
 });
+=======
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true }, // 'unique' prevents duplicate emails
+  password: { type: String, required: true },
+  department: { type: String },
+  role: { type: String, enum: ['admin', 'user'], default: 'user' }
+}, { timestamps: true });
+>>>>>>> Stashed changes
 
 
 userSchema.pre('save', async function() {
