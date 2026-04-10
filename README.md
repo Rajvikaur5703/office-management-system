@@ -13,9 +13,7 @@ This is a web application built using React.
 - React
 - Vite
 - JavaScript
-- Bootstrap
-- MongoDB Compass
-- Postman
+- CSS
 
 ## Installation
 

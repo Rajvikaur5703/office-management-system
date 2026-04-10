@@ -1,6 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import RoleBaseRoutes from "./components/RoleBaseRoutes"; // Import the guard
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Common
 import Login from "./pages/Login";
@@ -19,26 +18,20 @@ import AdminDepartment from "./pages/admin/AdminDepartment";
 import EmpDashboard from "./pages/employee/EmpDashboard";
 import Tasks from "./pages/employee/Tasks";
 import Attendance from "./pages/employee/Attendance";
+import Document from "./pages/employee/Document";
 import Leave from "./pages/employee/Leave";
 import Profile from "./pages/employee/Profile";
 
 function App() {
- 
+
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Route */}
         <Route path='/' element={<Login />} />
 
-        {/* Admin Routes - Protected by role="admin" */}
-        <Route 
-          path="/admin" 
-          element={
-            <RoleBaseRoutes requiredRole="admin">
-              <Layout role="admin" />
-            </RoleBaseRoutes>
-          }
-        >
+        {/* Admin Routes - All wrapped in one Admin Layout */}
+        <Route path="/admin" element={<Layout role="admin" />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="employee" element={<AdminEmployee />} />
           <Route path="tasks" element={<AdminTasks />} />
@@ -48,28 +41,19 @@ function App() {
           <Route path="leave" element={<AdminLeave />} />
         </Route>
 
-        {/* Employee Routes - Protected by role="employee" */}
-        <Route 
-          path="/employee" 
-          element={
-            <RoleBaseRoutes requiredRole="employee">
-              <Layout role="user" />
-            </RoleBaseRoutes>
-          }
-        >
+        {/* Employee Routes - All wrapped in one Employee Layout */}
+        <Route path="/employee" element={<Layout role="user" />}>
           <Route index element={<EmpDashboard />} />
           <Route path="dashboard" element={<EmpDashboard />} />
           <Route path="tasks" element={<Tasks />} />
           <Route path="attendance" element={<Attendance />} />
+          <Route path="documents" element={<Document />} />
           <Route path="leave" element={<Leave />} />
           <Route path="profile" element={<Profile />} />
         </Route>
-
-        {/* Catch-all: Redirect unknown URLs to Login */}
-        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
 
 export default App

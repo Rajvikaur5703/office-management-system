@@ -1,37 +1,89 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function AdminTasks() {
-  const [tasks, setTasks] = useState([
-    { id: 1, title: "Design UI", assigned: "John", status: "pending", dueDate: "2026-03-15" },
-    { id: 2, title: "Fix Bug", assigned: "Jane", status: "in-progress", dueDate: "2026-03-20" }
-  ]);
-
+  // 1. Re-enable state variables
+  const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
   const [assigned, setAssigned] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [editId, setEditId] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const token = localStorage.getItem("token");
 
-  const addTask = (e) => {
-    e.preventDefault();
-    if (editId) {
-      setTasks(tasks.map(t => t.id === editId ? { ...t, title, assigned, dueDate } : t));
-      setEditId(null);
-    } else {
-      setTasks([...tasks, { id: Date.now(), title, assigned, status: "pending", dueDate }]);
+  // 1. Fetch employees from backend
+  const fetchEmployees = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/auth/employees");
+      setEmployees(res.data);
+    } catch (err) {
+      console.log("Error fetching employees");
     }
-    setTitle(""); setAssigned(""); setDueDate("");
   };
 
+
+  // 2. Fetch tasks from backend on component mount
+  const fetchTasks = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/tasks/my-tasks", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTasks(res.data);
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+    fetchEmployees();
+  }, []);
+
+  // 3. Add or Update Task
+  const addTask = async (e) => {
+    e.preventDefault();
+    try {
+      if (editId) {
+        // Update existing task
+        await axios.put(`http://localhost:5000/api/tasks/update-task/${editId}`,
+          { title, assigned, dueDate },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setEditId(null);
+      } else {
+        // Add new task
+        await axios.post("http://localhost:5000/api/tasks/add",
+          { title, assigned, dueDate },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+      // Reset form and refresh list
+      setTitle(""); setAssigned(""); setDueDate("");
+      fetchTasks();
+    } catch (err) {
+      alert(err.response?.data?.message || "Operation failed");
+    }
+  };
+
+  // 4. Edit Helper (Sets form values)
   const editTask = (task) => {
     setTitle(task.title);
     setAssigned(task.assigned);
     setDueDate(task.dueDate);
-    setEditId(task.id);
+    setEditId(task._id); // MongoDB uses _id
   };
 
-  const deleteTask = (id) => {
+  // 5. Delete Task
+  const deleteTask = async (id) => {
     if (window.confirm("Delete this task?")) {
-      setTasks(tasks.filter(t => t.id !== id));
+      try {
+        await axios.delete(`http://localhost:5000/api/tasks/delete/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchTasks();
+      } catch (err) {
+        alert("Could not delete task");
+      }
     }
   };
 
@@ -39,7 +91,7 @@ function AdminTasks() {
     <div className="container-fluid py-4">
       <h2 className="fw-bold mb-4">Task Management</h2>
 
-      {/* Add/Edit Task Form Card */}
+      {/* Form Section */}
       <div className="card shadow-sm border-0 mb-4 bg-light">
         <div className="card-body">
           <form className="row g-3 align-items-end" onSubmit={addTask}>
@@ -49,7 +101,12 @@ function AdminTasks() {
             </div>
             <div className="col-md-3">
               <label className="form-label small fw-bold">Assign To</label>
-              <input type="text" className="form-control" placeholder="Employee Name" value={assigned} onChange={(e) => setAssigned(e.target.value)} required />
+              <select className="form-select" value={assigned} onChange={(e) => setAssigned(e.target.value)} required >
+                <option value="">Select Employee</option>
+                {employees.map((emp) => (
+                  <option key={emp._id} value={emp.name}> {emp.name} </option>
+                ))}
+              </select>
             </div>
             <div className="col-md-3">
               <label className="form-label small fw-bold">Due Date</label>
@@ -64,7 +121,7 @@ function AdminTasks() {
         </div>
       </div>
 
-      {/* Task Table */}
+      {/* Table Section */}
       <div className="card shadow-sm border-0">
         <div className="table-responsive">
           <table className="table table-hover align-middle mb-0">
@@ -79,23 +136,22 @@ function AdminTasks() {
             </thead>
             <tbody>
               {tasks.map((task) => (
-                <tr key={task.id}>
+                <tr key={task._id}>
                   <td className="ps-4">
                     <div className="fw-bold">{task.title}</div>
                   </td>
                   <td><span className="text-muted">{task.assigned}</span></td>
                   <td>
-                    <span className={`badge rounded-pill ${
-                      task.status === 'pending' ? 'bg-warning text-dark' : 
+                    <span className={`badge rounded-pill ${task.status === 'pending' ? 'bg-warning text-dark' :
                       task.status === 'in-progress' ? 'bg-info text-white' : 'bg-success'
-                    }`}>
+                      }`}>
                       {task.status}
                     </span>
                   </td>
                   <td>{task.dueDate}</td>
                   <td className="text-end pe-4">
                     <button className="btn btn-sm btn-outline-primary me-2" onClick={() => editTask(task)}>Edit</button>
-                    <button className="btn btn-sm btn-outline-danger" onClick={() => deleteTask(task.id)}>Delete</button>
+                    <button className="btn btn-sm btn-outline-danger" onClick={() => deleteTask(task._id)}>Delete</button>
                   </td>
                 </tr>
               ))}

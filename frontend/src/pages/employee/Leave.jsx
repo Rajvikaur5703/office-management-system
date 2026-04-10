@@ -1,24 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function Leave() {
   const [leaves, setLeaves] = useState([]);
 
+  const user = JSON.parse(localStorage.getItem("user"));
   const [formData, setFormData] = useState({
+    name: user?.email || "",
     type: "",
-    from: "",
-    to: "",
+    fromdate: "",
+    todate: "",
     description: "",
     appliedDate: new Date().toISOString().split('T')[0] // Default to today
   });
+
+  const fetchLeaves = async () => {
+    const res = await axios.get(`http://localhost:5000/api/leave/${user.email}`);
+    setLeaves(res.data);
+  };
+
+  useEffect(() => {
+    fetchLeaves();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLeaves([...leaves, { ...formData, status: "Pending" }]);
-    setFormData({ type: "", from: "", to: "", description: "", appliedDate: new Date().toISOString().split('T')[0] });
+    try {
+      console.log("Submitting:", formData);
+
+      const res = await axios.post(
+        "http://localhost:5000/api/leave/apply",
+        formData
+      );
+
+      console.log("Saved:", res.data);
+
+      fetchLeaves();
+    } catch (err) {
+      console.error("Error:", err.response?.data || err.message);
+    }
   };
 
   return (
@@ -47,11 +71,11 @@ function Leave() {
                 <div className="row">
                   <div className="col-6 mb-3">
                     <label className="form-label small fw-bold">From</label>
-                    <input type="date" name="from" className="form-control" value={formData.from} onChange={handleChange} required />
+                    <input type="date" name="fromdate" className=" form-control" value={formData.fromdate} onChange={handleChange} required />
                   </div>
                   <div className="col-6 mb-3">
                     <label className="form-label small fw-bold">To</label>
-                    <input type="date" name="to" className="form-control" value={formData.to} onChange={handleChange} required />
+                    <input type="date" name="todate" className="form-control" value={formData.todate} onChange={handleChange} required />
                   </div>
                 </div>
 
@@ -95,15 +119,17 @@ function Leave() {
                       <tr key={index}>
                         <td className="ps-4">
                           <div className="fw-bold">{leave.type}</div>
-                          <div className="text-muted small text-truncate" style={{maxWidth: '150px'}}>{leave.description}</div>
+                          <div className="text-muted small text-truncate" style={{ maxWidth: '150px' }}>{leave.description}</div>
                         </td>
                         <td>
-                          <div className="small fw-bold">{leave.from}</div>
-                          <div className="text-muted small">to {leave.to}</div>
+                          <div className="small fw-bold">{new Date(leave.fromdate).toLocaleDateString()}</div>
+                          <div className="text-muted small">to {new Date(leave.todate).toLocaleDateString()}</div>
                         </td>
-                        <td className="text-muted">{leave.appliedDate}</td>
+                        <td className="text-muted">{new Date(leave.createdAt).toLocaleDateString()}</td>
                         <td>
-                          <span className="badge rounded-pill bg-info-subtle text-info px-3">
+                          <span className={`badge rounded-pill ${leave.status === "Approved"
+                            ? "bg-success" : leave.status === "Rejected"
+                              ? "bg-danger" : "bg-warning text-dark"}`}>
                             {leave.status}
                           </span>
                         </td>

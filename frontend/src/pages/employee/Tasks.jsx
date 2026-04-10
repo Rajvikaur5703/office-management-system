@@ -1,18 +1,62 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
 
 function Tasks() {
+  const [tasks, setTasks] = useState([]);
+  const [editingTaskId, setEditingTaskId] = useState(null);
+
+  // Calculate real stats from tasks
+  const totalTasks = tasks.length;
+  const pendingTasks = tasks.filter(
+    (task) => task.status === "pending").length;
+
+  const inProgressTasks = tasks.filter(
+    (task) => task.status === "in-progress").length;
+
+  const completedTasks = tasks.filter(
+    (task) => task.status === "completed").length;
+
+
   const stats = [
-    { title: 'Total Tasks', value: '250', icon: 'bi-list-task', color: 'primary' },
-    { title: 'Pending', value: '100', icon: 'bi-clock-history', color: 'danger' },
-    { title: 'In Progress', value: '50', icon: 'bi-gear-wide-connected', color: 'warning' },
-    { title: 'Completed', value: '100', icon: 'bi-check2-circle', color: 'success' }
+    { title: 'Total Tasks', value: totalTasks, icon: 'bi-list-task', color: 'primary' },
+    { title: 'Pending', value: pendingTasks, icon: 'bi-clock-history', color: 'danger' },
+    { title: 'In Progress', value: inProgressTasks, icon: 'bi-gear-wide-connected', color: 'warning' },
+    { title: 'Completed', value: completedTasks, icon: 'bi-check2-circle', color: 'success' }
   ];
 
-  const tasks = [
-    { name: 'UI Design', deadline: '12 Mar 2026', priority: 'High', status: 'Pending' },
-    { name: 'Monthly Report', deadline: '15 Mar 2026', priority: 'Medium', status: 'Completed' },
-    { name: 'Meeting Slides', deadline: '18 Mar 2026', priority: 'Low', status: 'In Progress' },
-  ];
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
+  const employeeName = user?.name;
+
+  const fetchTasks = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/tasks/employee/${employeeName}`
+      );
+      setTasks(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const updateStatus = async (taskId, newStatus) => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/tasks/update-status/${taskId}`,
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      fetchTasks();
+    } catch (err) {
+      console.error("Failed to update status");
+    }
+  };
 
   // Easy helper for Priority colors
   const getPriorityClass = (priority) => {
@@ -53,7 +97,7 @@ function Tasks() {
           <table className="table table-hover align-middle mb-0">
             <thead className="table-light">
               <tr>
-                <th className="ps-4">Task Name</th>
+                <th className="ps-4">Title</th>
                 <th>Deadline</th>
                 <th>Priority</th>
                 <th>Status</th>
@@ -63,25 +107,44 @@ function Tasks() {
             <tbody>
               {tasks.map((task, index) => (
                 <tr key={index}>
-                  <td className="ps-4 fw-bold">{task.name}</td>
-                  <td><i className="bi bi-calendar-event me-2 text-muted"></i>{task.deadline}</td>
+                  <td className="ps-4 fw-bold">{task.title}</td>
+                  <td><i className="bi bi-calendar-event me-2 text-muted"></i>{task.dueDate}</td>
                   <td>
                     <span className={getPriorityClass(task.priority)}>
                       ● {task.priority}
                     </span>
                   </td>
                   <td>
-                    <span className={`badge rounded-pill ${
-                      task.status === 'Completed' ? 'bg-success' : 
-                      task.status === 'In Progress' ? 'bg-info' : 'bg-secondary'
-                    }`}>
-                      {task.status}
+                    <span
+                      className={`badge rounded-pill px-3 py-2 
+                        ${task.status === "completed" ? "bg-success"
+                          : task.status === "in-progress" ? "bg-warning text-dark" : "bg-secondary"}`}>
+
+                      {task.status === "pending" ? "Pending" : task.status === "in-progress"
+                        ? "In Progress" : "Completed"}
                     </span>
                   </td>
                   <td className="text-end pe-4">
-                    <button className="btn btn-sm btn-outline-primary px-3">
-                      Update
-                    </button>
+                    {editingTaskId === task._id ?
+                      (
+                        <div className="btn-group btn-group-sm">
+                          <button className={`btn ${task.status === "pending" ? "btn-secondary" : "btn-outline-secondary"}`}
+                            onClick={() => { updateStatus(task._id, "pending"); setEditingTaskId(null); }}> Pending
+                          </button>
+
+                          <button className={`btn ${task.status === "in-progress" ? "btn-warning" : "btn-outline-warning"}`}
+                            onClick={() => { updateStatus(task._id, "in-progress"); setEditingTaskId(null); }}> In Progress
+                          </button>
+
+                          <button className={`btn ${task.status === "completed" ? "btn-success" : "btn-outline-success"}`}
+                            onClick={() => { updateStatus(task._id, "completed"); setEditingTaskId(null); }}> Completed
+                          </button>
+                        </div>
+                      ) : (
+                        <button className="btn btn-sm btn-outline-primary px-3" onClick={() => setEditingTaskId(task._id)}>
+                          Update
+                        </button>
+                      )}
                   </td>
                 </tr>
               ))}

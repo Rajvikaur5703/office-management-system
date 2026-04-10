@@ -1,52 +1,60 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Make sure to npm install axios
 
 function Login() {
   const navigate = useNavigate();
-
-  // 1. State for Form Data and Errors
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
 
-  // 2. Handle Input Changes
+  // Handle input changes
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 3. Handle Form Submission
+  // Handle login
   const handleLogin = async (e) => {
     e.preventDefault();
     setErrorMessage(""); // Clear previous errors
 
+    const { username, password } = formData;
+
     try {
-      // Call your backend login endpoint
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email: formData.username,
-        password: formData.password,
+      // Send login request
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: username.trim().toLowerCase(), password }),
       });
 
-      // Save token and user info to localStorage
-      const { token, user } = response.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("role", user.role);
+      const data = await response.json();
 
-      // 4. Redirect based on role
-      if (user.role === "admin") {
-        navigate("/admin/dashboard");
+      if (response.ok) {
+        console.log("Login success:", data);
+
+        // Extract role from user object
+        const role = data.user.role;
+
+        // Store token and role in localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("role", role);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // Redirect based on role
+        if (role === "admin") {
+          navigate("/admin/dashboard");
+        } else if (role === "user") {
+          navigate("/employee/dashboard");
+        } else {
+          setErrorMessage("Unknown user role. Cannot redirect.");
+          console.warn("Unknown role:", role);
+        }
       } else {
-        navigate("/employee/dashboard");
+        // If login failed
+        setErrorMessage(data.msg || "Invalid credentials. Try again!");
       }
-      
-    } catch (err) {
-      // Handle errors (Invalid credentials, server down, etc.)
-      setErrorMessage(err.response?.data?.message || "Login failed. Try again.");
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrorMessage("Cannot connect to server. Is your backend running?");
     }
   };
 
@@ -57,7 +65,7 @@ function Login() {
           <h2 className="text-center fw-bold mb-4 text-primary">Welcome Back</h2>
           <p className="text-center text-muted mb-4">Office Management System</p>
 
-          {/* Error message display */}
+          {/* Error message */}
           {errorMessage && (
             <div className="alert alert-danger py-2 text-center" role="alert">
               {errorMessage}

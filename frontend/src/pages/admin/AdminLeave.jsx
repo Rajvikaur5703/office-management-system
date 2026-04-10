@@ -1,13 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function AdminLeave() {
-  const [leaves, setLeaves] = useState([
-    { id: 1, employee: "John Doe", from: "2026-03-20", to: "2026-03-22", reason: "Medical Leave", status: "Pending" },
-    { id: 2, employee: "Jane Smith", from: "2026-03-25", to: "2026-03-26", reason: "Personal Work", status: "Pending" },
-  ]);
+  const [leaves, setLeaves] = useState([]);
 
-  const updateStatus = (id, newStatus) => {
-    setLeaves(leaves.map((l) => (l.id === id ? { ...l, status: newStatus } : l)));
+  const fetchLeaves = async () => {
+    const res = await axios.get("http://localhost:5000/api/leave");
+    setLeaves(res.data);
+  };
+
+  useEffect(() => {
+    fetchLeaves();
+  }, []);
+
+  const updateStatus = async (id, newStatus) => {
+    await axios.put(`http://localhost:5000/api/leave/${id}`, {
+      status: newStatus,
+    });
+
+    fetchLeaves(); // refresh
   };
 
   // Easy helper to pick badge colors
@@ -39,12 +50,12 @@ function AdminLeave() {
             <tbody>
               {leaves.map((leave) => (
                 <tr key={leave.id}>
-                  <td className="ps-4 fw-bold">{leave.employee}</td>
+                  <td className="ps-4 fw-bold">{leave.name}</td>
                   <td>
-                    <div className="small text-muted">{leave.from}</div>
-                    <div className="small fw-bold">to {leave.to}</div>
+                    <div className="small text-muted">{new Date(leave.fromdate).toLocaleDateString()}</div>
+                    <div className="small fw-bold">to {new Date(leave.todate).toLocaleDateString()}</div>
                   </td>
-                  <td>{leave.reason}</td>
+                  <td>{leave.description}</td>
                   <td>
                     <span className={`badge rounded-pill ${getStatusBadge(leave.status)}`}>
                       {leave.status}
@@ -53,15 +64,15 @@ function AdminLeave() {
                   <td className="text-end pe-4">
                     {leave.status === "Pending" ? (
                       <div className="btn-group shadow-sm">
-                        <button 
-                          className="btn btn-sm btn-success" 
-                          onClick={() => updateStatus(leave.id, "Approved")}
+                        <button
+                          className="btn btn-sm btn-success"
+                          onClick={() => updateStatus(leave._id, "Approved")}
                         >
                           Approve
                         </button>
-                        <button 
-                          className="btn btn-sm btn-danger" 
-                          onClick={() => updateStatus(leave.id, "Rejected")}
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => updateStatus(leave._id, "Rejected")}
                         >
                           Reject
                         </button>

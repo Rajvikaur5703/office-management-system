@@ -1,20 +1,15 @@
-// This creates the endpoint for your frontend to call.
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-<<<<<<< Updated upstream
-const { login } = require('../controllers/authController');
-=======
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { protect } = require("../middleware/authMiddleware");
->>>>>>> Stashed changes
 
-// Route: POST /api/auth/login
-router.post('/login', login);
+// ------------------------
+// Login
+// ------------------------
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
 
-<<<<<<< Updated upstream
-module.exports = router;
-=======
   try {
     // check if fields exist
     if (!email || !password) {
@@ -61,6 +56,7 @@ module.exports = router;
 // ------------------------
 router.post("/register", async (req, res) => {
   const { name, email, password, department, role } = req.body;
+
   try {
     // 1. Check if user already exists
     let user = await User.findOne({ email });
@@ -125,16 +121,33 @@ router.delete("/employee/:id", async (req, res) => {
   }
 });
 
-
+//Get current user profile
 router.get("/profile", protect, async (req, res) => {
   try {
-    // req.user.id comes from your 'protect' middleware
-    const user = await User.findById(req.user.id).select("-password");
-    res.json(user);
+    res.json(req.user); // user already loaded in middleware
   } catch (err) {
     res.status(500).send("Server error");
   }
 });
 
+//Update current user profile
+router.put("/profile", protect, async (req, res) => {
+  try {
+    const user = req.user;
+
+    user.name = req.body.name || user.name;
+    user.department = req.body.department || user.department;
+    user.email = req.body.email || user.email;
+    user.phoneno = req.body.phoneno || user.phoneno;
+    user.address = req.body.address || user.address;
+
+    await user.save();
+
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 module.exports = router;
->>>>>>> Stashed changes

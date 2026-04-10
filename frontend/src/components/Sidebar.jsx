@@ -18,8 +18,9 @@ function Sidebar({ role }) {
     user: [
       { name: "Dashboard", path: "/employee/dashboard" },
       { name: "Tasks", path: "/employee/tasks" },
-      { name: "Attendance", path: "/employee/attendance" },
       { name: "Leave", path: "/employee/leave" },
+      { name: "Attendance", path: "/employee/attendance" },
+      { name: "Documents", path: "/employee/documents" },
       { name: "Profile", path: "/employee/profile" },
     ],
   };
@@ -33,28 +34,44 @@ function Sidebar({ role }) {
       </h4>
 
       <div className="list-group list-group-flush">
-        {currentMenu.map((item, index) => (
-          <Link
-            key={index}
-            to={item.path}
-            className={`list-group-item list-group-item-action bg-dark text-white border-0 py-2 ${
-              location.pathname === item.path ? "bg-primary active" : ""
-            }`}
-          >
-            {item.name}
-          </Link>
-        ))}
+        {currentMenu.map((item, index) => {
+          const isActive = location.pathname === item.path;
+
+          return (
+            <Link
+              key={index}
+              to={item.path}
+              className={`list-group-item list-group-item-action bg-dark text-white border-0 py-3 ${isActive ? "bg-primary active" : ""
+                }`}
+              style={{
+                transition: "all 0.2s ease-in-out",
+                fontSize: "0.95rem",
+                borderLeft: isActive ? "2px solid #fff" : "2px solid transparent"
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.paddingLeft = "25px"; // Moves text right
+                e.currentTarget.style.backgroundColor = "#2c3034"; // Slight grey highlight
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.paddingLeft = "16px"; // Reset to px-3 equivalent
+                if (!isActive) e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              {item.name}
+            </Link>
+          );
+        })}
 
         <hr className="bg-secondary" />
-        
-        <Link 
-          to="/" 
+
+        <Link
+          to="/"
           className="list-group-item list-group-item-action bg-danger text-white border-0 rounded mt-2 text-center"
         >
           Logout
         </Link>
       </div>
-    </div>
+    </div >
   );
 }
 

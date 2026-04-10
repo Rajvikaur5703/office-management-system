@@ -1,11 +1,12 @@
 import React from "react";
 
 function EmpDashboard() {
+
   const stats = [
-    { title: 'Total Tasks', value: '156', icon: 'bi-list-check', color: 'primary', change: '+12%' },
-    { title: 'Attendance', value: '98%', icon: 'bi-check-circle', color: 'success', change: '+2%' },
-    { title: 'Active Projects', value: '18', icon: 'bi-briefcase', color: 'warning', change: '+5%' },
-    { title: 'Meetings', value: '12', icon: 'bi-clock', color: 'info', change: '+8%' }
+    { title: 'Total Tasks', value: '0', icon: 'bi-list-check', color: 'primary' },
+    { title: 'Attendance', value: '0', icon: 'bi-check-circle', color: 'success' },
+    { title: 'Active Projects', value: '0', icon: 'bi-briefcase', color: 'warning' },
+    { title: 'Meetings', value: '0', icon: 'bi-clock', color: 'info' }
   ];
 
   return (
@@ -17,10 +18,10 @@ function EmpDashboard() {
             <span className="input-group-text bg-white border-end-0">
               <i className="bi bi-search text-muted"></i>
             </span>
-            <input 
-              type="text" 
-              className="form-control border-start-0 ps-0" 
-              placeholder="Search tasks, documents, or projects..." 
+            <input
+              type="text"
+              className="form-control border-start-0 ps-0"
+              placeholder="Search tasks, documents, or projects..."
             />
           </div>
         </div>
@@ -48,12 +49,12 @@ function EmpDashboard() {
                     <h3 className="fw-bold mb-0">{stat.value}</h3>
                   </div>
                 </div>
-                <div className="d-flex align-items-center">
+                {/* <div className="d-flex align-items-center">
                   <span className="badge bg-success-subtle text-success border border-success-subtle me-2">
                     {stat.change}
                   </span>
                   <span className="text-muted small">vs last month</span>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
