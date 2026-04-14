@@ -6,6 +6,10 @@ function AdminDashboard() {
   const navigate = useNavigate();
 
   const [totalEmployees, setTotalEmployees] = useState(0);
+  const [totalTasks, setTotalTasks] = useState(0);
+  const [pendingTasks, setPendingTasks] = useState(0);
+
+
   // const [activities, setActivities] = useState([]); // Added missing state 
   const [loading, setLoading] = useState(true);
   const [activities, setActivities] = useState([]);
@@ -25,17 +29,21 @@ function AdminDashboard() {
   const fetchDashboardData = async () => {
     try {
       // You can call your specific count endpoint or get the full list
-      const res = await axios.get("http://localhost:5000/api/auth/employees");
+      const eres = await axios.get("http://localhost:5000/api/auth/employees");
+      setTotalEmployees(eres.data.length);   // If the API returns an array, the length is your total count
 
-      // If the API returns an array, the length is your total count
-      setTotalEmployees(res.data.length);
+      const tres = await axios.get("http://localhost:5000/api/tasks/my-tasks");
+      setTotalTasks(tres.data.length);   // If the API returns an array, the length is your total count
+
+      const pending = tres.data.filter((task) => task.status === "Pending").length;
+      setPendingTasks(pending);
+
 
       // Set dummy activities so the map function doesn't fail
       setActivities([
         { message: "John added a new task" },
         { message: "Admin created a new employee" },
       ]);
-
       setLoading(false);
     } catch (err) {
       console.error("Could not Fetch dashboard data", err);
@@ -46,9 +54,9 @@ function AdminDashboard() {
   // 3. Define stats dynamically based on current state
   const stats = [
     { title: "Total Employees", value: totalEmployees || 0, color: "primary" },
-    { title: "Total Tasks", value: 0, color: "success" },
+    { title: "Total Tasks", value: totalTasks, color: "success" },
     { title: "Present Today", value: 0, color: "info" },
-    { title: "Pending Tasks", value: 0, color: "warning" },
+    { title: "Pending Tasks", value: pendingTasks || 0, color: "warning" },
   ];
 
   if (loading) return <div className="p-5">Loading Dashboard...</div>;

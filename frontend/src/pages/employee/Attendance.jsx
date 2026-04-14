@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-function Attendance() 
-{
+function Attendance() {
   const [showpopup, setshowpopup] = useState(false);
   const [status, setStatus] = useState("Not Marked");
   const [pin, setpin] = useState();
@@ -21,70 +21,92 @@ function Attendance()
     setshowpopup(true);
   };
 
-const handlePin = () => {
-  if(pin === "2026")
-  {
+
+
+  const handlePin = async () => {
+    console.log("Button clicked"); // debug
+    if (pin === "2026") {
+      const now = new Date();
+
+      const time = now.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      try {
+        const user = JSON.parse(localStorage.getItem("user")); // dynamic user
+        const res = await axios.post("http://localhost:5000/api/attendance/checkin", {
+          userId: user._id,
+          name: user.name,
+          date: today,
+          checkIn: time
+        });
+
+        sethistory([res.data, ...history]);
+        setStatus("Present");
+        setCheckInTime(time);
+        setCheckInDate(now);
+
+        setshowpopup(false);
+        setpin("");
+
+      } catch (err) {
+        console.log(err);
+      }
+
+    } else if (!pin) {
+      alert("Enter PIN");
+    } else {
+      alert("Invalid PIN");
+    }
+  };
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    axios.get(`http://localhost:5000/api/attendance/${user._id}`)
+      .then(res => sethistory(res.data))
+      .catch(err => console.log(err));
+  }, []);
+
+
+
+  const handleCheckOut = async () => {
+
     const now = new Date();
 
-    const time = now.toLocaleTimeString([], {
+    const checkoutTime = now.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit'
     });
 
-    setCheckInTime(time);
-    setCheckInDate(now);
-    setStatus("Present");
+    const diff = now - checkInDate;
 
-    const newrecord = {
-      date: today,
-      checkin: time,   // only time stored
-      checkout: "-",
-      hours: "-",
-      status: "Present"
-    };
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-    sethistory([newrecord, ...history]);
+    const totalHours = `${hours}h ${minutes}m`;
 
-    setshowpopup(false);
-    setpin("");
-  }
-  else if(pin == null || pin === "")
-  {
-    alert("Please enter a pin");
-  }
-  else
-  {
-    alert("Invalid PIN");
-  }
-};
+    try {
+      const latestRecord = history[0];
 
+      const res = await axios.put(
+        `http://localhost:5000/api/attendance/checkout/${latestRecord._id}`,
+        {
+          checkOut: checkoutTime,
+          hours: totalHours
+        }
+      );
 
-const handleCheckOut = () => {
+      const updatedHistory = [...history];
+      updatedHistory[0] = res.data;
 
-  const now = new Date();
+      sethistory(updatedHistory);
 
-  const checkoutTime = now.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-
-  const diff = now - checkInDate;
-
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-  const totalHours = `${hours}h ${minutes}m`;
-
-  const updatedHistory = [...history];
-
-  updatedHistory[0] = {
-    ...updatedHistory[0],
-    checkout: checkoutTime,   // only time
-    hours: totalHours
+    } catch (err) {
+      console.log(err);
+    }
   };
-
-  sethistory(updatedHistory);
-};
 
 
 
@@ -107,19 +129,19 @@ const handleCheckOut = () => {
               </div>
 
               <div className="d-flex justify-content-center gap-3">
-                <button 
-                  className="btn btn-primary px-4 shadow-sm" 
+                <button
+                  className="btn btn-primary px-4 shadow-sm"
                   onClick={handleCheckIn}
                   disabled={status === "Present"}
                 >
                   Check In
                 </button>
-                <button 
-                  className="btn btn-outline-secondary px-4" 
+                <button
+                  className="btn btn-outline-secondary px-4"
                   onClick={handleCheckOut}
                   disabled={status !== "Present"}
-                > 
-                  Check Out 
+                >
+                  Check Out
                 </button>
               </div>
               <p className="mt-3 text-muted small">Check-in time: {checkInTime}</p>
@@ -128,33 +150,33 @@ const handleCheckOut = () => {
         </div>
 
         {/* POPUP */}
-      {showpopup && (
-        <div className="modal d-block" style={{background:"rgba(0,0,0,0.5)"}}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content p-4">
-              <h5 className="mb-3">Enter PIN</h5>
+        {showpopup && (
+          <div className="modal d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content p-4">
+                <h5 className="mb-3">Enter PIN</h5>
 
-              <input
-                type="password"
-                className="form-control mb-3"
-                value={pin}
-                onChange={(e)=>setpin(e.target.value)}
-                placeholder="Enter your PIN"
-              />
+                <input
+                  type="password"
+                  className="form-control mb-3"
+                  value={pin}
+                  onChange={(e) => setpin(e.target.value)}
+                  placeholder="Enter your PIN"
+                />
 
-              <div className="d-flex justify-content-end gap-2">
-                <button className="btn btn-success" onClick={handlePin} >
-                  OK
-                </button>
-                
-                <button className="btn btn-secondary" onClick={()=>setshowpopup(false)} >
-                  Cancel
-                </button>
+                <div className="d-flex justify-content-end gap-2">
+                  <button className="btn btn-success" onClick={handlePin} >
+                    OK
+                  </button>
+
+                  <button className="btn btn-secondary" onClick={() => setshowpopup(false)} >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* Right Side: History Table */}
         <div className="col-lg-8">
@@ -174,29 +196,11 @@ const handleCheckOut = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* <tr>
-                    <td className="ps-4">11 March 2026</td>
-                    <td>09:00 AM</td>
-                    <td>06:00 PM</td>
-                    <td>9h</td>
-                    <td className="pe-4 text-end">
-                      <span className="badge bg-success-subtle text-success">Present</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="ps-4">10 March 2026</td>
-                    <td>08:55 AM</td>
-                    <td>05:45 PM</td>
-                    <td>8h 50m</td>
-                    <td className="pe-4 text-end">
-                      <span className="badge bg-success-subtle text-success">Present</span>
-                    </td>
-                  </tr> */}
                   {history.map((item, index) => (
                     <tr key={index}>
                       <td>{item.date}</td>
-                      <td>{item.checkin}</td>
-                      <td>{item.checkout}</td>
+                      <td>{item.checkIn}</td>
+                      <td>{item.checkOut}</td>
                       <td>{item.hours}</td>
                       <td className="pe-4 text-end">
                         <span className="badge bg-success-subtle text-success">{item.status}</span>

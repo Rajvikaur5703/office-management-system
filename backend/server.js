@@ -8,7 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const documentRoutes = require("./routes/documentRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const leaveRoutes = require("./routes/leaveRoutes")
-
+const attendanceRoutes = require("./routes/attendanceRoutes");
 
 dotenv.config();
 connectDB();
@@ -25,6 +25,8 @@ app.use("/uploads", express.static("uploads"));    //global middleware, meaning 
 app.use("/api/documents", documentRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/leave", leaveRoutes);
+app.use("/api/attendance", attendanceRoutes);
+
 app.use("/api/auth", authRoutes);  // Only Auth Routes (Login/Register)
 
 // Test route

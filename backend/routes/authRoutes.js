@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { protect } = require("../middleware/authMiddleware");
+const bcrypt = require("bcrypt");
 
 // ------------------------
 // Login
@@ -20,7 +21,13 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ email });
 
     // validate user
-    if (!user || user.password !== password) {
+    if (!user) {
+      return res.status(400).json({ msg: "Invalid credentials" });
+    }
+
+    // Compare the hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
 
@@ -64,18 +71,22 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ msg: "User already exists" });
     }
 
+     // ✅ Hash the password before saving
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     // 2. Create new user instance
     user = new User({
       name,
       email,
-      password, // Note: In the next step, we should hash this!
+      password: hashedPassword, // Save hashed password
       department,
       role: role || "user", // Default to user/employee if not specified
     });
 
     // 3. Save to MongoDB
     await user.save();
-
+    
     res.status(201).json({ msg: "Employee created successfully", user });
   } catch (err) {
     console.error(err.message);
