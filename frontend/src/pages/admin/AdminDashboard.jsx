@@ -1,137 +1,105 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import AdminDashboardCharts from "../../components/AdminDashboardCharts";
 
 function AdminDashboard() {
   const navigate = useNavigate();
-
-  const [totalEmployees, setTotalEmployees] = useState(0);
-  const [totalTasks, setTotalTasks] = useState(0);
-  const [pendingTasks, setPendingTasks] = useState(0);
-
-
-  // const [activities, setActivities] = useState([]); // Added missing state 
+  const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activities, setActivities] = useState([]);
+  const [chartData, setChartData] = useState({ employeesPerDept: {}, taskStatus: {} });
+  const [adminName, setAdminName] = useState("Admin");
 
-  // Check admin role
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
   useEffect(() => {
-    const role = localStorage.getItem("role");
-    if (role !== "admin") {
+    const userString = localStorage.getItem("user");
+
+    if (role !== "admin" || !token) {
       navigate("/");
+      return;
     }
-    else {
-      fetchDashboardData();
+
+    // Parse the user object to get the name
+    if (userString) {
+      try {
+        const userData = JSON.parse(userString);
+        setAdminName(userData.name || "Admin"); // Use .name or whatever key your backend sends
+      } catch (err) {
+        console.error("Error parsing user data", err);
+      }
     }
-  }, [navigate]);
 
-  // 2. Centralized data fetching
-  const fetchDashboardData = async () => {
-    try {
-      // You can call your specific count endpoint or get the full list
-      const eres = await axios.get("http://localhost:5000/api/auth/employees");
-      setTotalEmployees(eres.data.length);   // If the API returns an array, the length is your total count
+    const fetchData = async () => {
+      try {
+        const headers = { Authorization: `Bearer ${token}` };
+        const statsRes = await fetch("http://localhost:5000/api/admin/stats", { headers });
+        const sData = await statsRes.json();
 
-      const tres = await axios.get("http://localhost:5000/api/tasks/my-tasks");
-      setTotalTasks(tres.data.length);   // If the API returns an array, the length is your total count
+        setStats([
+          { title: "Total Employees", value: sData.totalEmployees || 0, icon: "👥", color: "#0d6efd" },
+          { title: "Total Tasks", value: sData.totalTasks || 0, icon: "📝", color: "#198754" },
+          { title: "Present Today", value: sData.presentToday || 0, icon: "✅", color: "#0dcaf0" },
+          { title: "Pending Tasks", value: sData.pendingTasks || 0, icon: "⏳", color: "#ffc107" },
+        ]);
 
-      const pending = tres.data.filter((task) => task.status === "Pending").length;
-      setPendingTasks(pending);
+        setChartData({
+          employeesPerDept: sData.employeesPerDept || {},
+          taskStatus: sData.taskStatus || {}
+        });
+      } catch (err) {
+        console.error("Fetch Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchData();
+  }, [navigate, role, token]);
 
-      // Set dummy activities so the map function doesn't fail
-      setActivities([
-        { message: "John added a new task" },
-        { message: "Admin created a new employee" },
-      ]);
-      setLoading(false);
-    } catch (err) {
-      console.error("Could not Fetch dashboard data", err);
-      setLoading(false);
-    }
-  };
-
-  // 3. Define stats dynamically based on current state
-  const stats = [
-    { title: "Total Employees", value: totalEmployees || 0, color: "primary" },
-    { title: "Total Tasks", value: totalTasks, color: "success" },
-    { title: "Present Today", value: 0, color: "info" },
-    { title: "Pending Tasks", value: pendingTasks || 0, color: "warning" },
-  ];
-
-  if (loading) return <div className="p-5">Loading Dashboard...</div>;
-  const icons = ["👥", "📝", "✅", "⏳"];
+  if (loading) return <div className="p-5 text-center fw-bold">Loading Dashboard...</div>;
 
   return (
-    <div className="container-fluid py-4">
-      <div className="row mb-4 align-items-center">
-        <div className="col-md-8 mb-3 mb-md-0">
-          <div className="input-group shadow-sm">
-            <span className="input-group-text bg-white border-end-0">
-              <i className="bi bi-search text-muted"></i>
-            </span>
-            <input
-              type="text"
-              className="form-control border-start-0 ps-0"
-              placeholder="Search tasks, documents, or projects..."
-            />
-          </div>
-        </div>
-        <div className="col-md-4 text-md-end">
-          <select className="form-select shadow-sm d-inline-block w-auto">
-            <option>Last 30 days</option>
-            <option>Last 7 days</option>
-            <option>This Year</option>
-          </select>
+    <div className="container-fluid py-4" style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
+
+      {/* Header */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 className="fw-bold mb-0 text-dark">Welcome, {adminName}!</h2>
+          <p className="text-muted small">System statistics overview</p>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="row g-4">
-        {stats.map((stat, index) => (
-          <div key={index} className="col-12 col-sm-6 col-xl-3">
-            <div className="card border-0 shadow-sm h-100">
-              <div className="card-body">
-                <div className="d-flex align-items-center mb-3">
-                  <div>
-                    <p className="text-uppercase opacity-75 small fw-bold mb-1">{stat.title}</p>
-                    <h2 className="display-6 fw-bold mb-0">{stat.value}</h2>
-                  </div>
-                  <span style={{ fontSize: "1.8rem", opacity: "0.8" }}>
-                    {icons[index % icons.length]}
-                  </span>
+      {/* Top 4 Stats Row */}
+      <div className="row g-3 mb-4">
+        {stats.map((s, i) => (
+          <div key={i} className="col-md-3">
+            <div className="card border-0 shadow-sm h-100 p-3" style={{ borderTop: `4px solid ${s.color}` }}>
+              <div className="d-flex align-items-center justify-content-between">
+                <div>
+                  <div className="text-muted small fw-bold text-uppercase">{s.title}</div>
+                  <h3 className="fw-bold mb-0">{s.value}</h3>
                 </div>
-                {/* <div className="d-flex align-items-center">
-                  <span className="badge bg-success-subtle text-success border border-success-subtle me-2">
-                    {stat.change}
-                  </span>
-                  <span className="text-muted small">vs last month</span>
-                </div> */}
+                <div style={{ fontSize: "1.8rem" }}>{s.icon}</div>
               </div>
             </div>
           </div>
         ))}
       </div>
 
+      {/* Charts Section - 2 Parts */}
+      <div className="row g-4">
+        <div className="col-md-6">
+          <div className="card border-0 shadow-sm p-4 h-100 bg-white text-center">
+            <h5 className="fw-bold mb-4">📊 Employees per Department</h5>
+            <AdminDashboardCharts employeesPerDept={chartData.employeesPerDept} />
+          </div>
+        </div>
 
-      {/* Activities */}
-      <div className="row">
-        <div className="col-12 col-lg-8">
-          <div className="card shadow-sm border-0" style={{ borderRadius: "16px" }}>
-            <div className="card-header bg-white py-3 border-0" style={{ borderRadius: "16px 16px 0 0" }}>
-              <h5 className="mb-0 fw-bold" style={{ color: "#3e474bff" }}>
-                <span className="me-2">⚡</span> Recent Activity
-              </h5>
-            </div>
-            <div className="card-body">
-              <ul className="list-group list-group-flush">
-                {activities.map((act, index) => (
-                  <li key={index} className="list-group-item px-0 py-3">
-                    {act.message}
-                  </li>
-                ))}
-              </ul>
-            </div>
+        <div className="col-md-6">
+          <div className="card border-0 shadow-sm p-4 h-100 bg-white text-center">
+            <h5 className="fw-bold mb-4">📈 Task Status Distribution</h5>
+            <AdminDashboardCharts taskStatus={chartData.taskStatus} />
           </div>
         </div>
       </div>

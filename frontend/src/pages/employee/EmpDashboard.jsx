@@ -1,6 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function EmpDashboard() {
+  const [userName, setUserName] = useState("User"); // Default fallback
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    // 1. If you store the name directly in localStorage during login:
+    const storedName = localStorage.getItem("userName");
+    if (storedName) {
+      setUserName(storedName);
+    } else {
+      // 2. Alternatively, fetch it from your /api/emp/me endpoint
+      fetchUserProfile();
+    }
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/emp/me", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUserName(res.data.name);
+    } catch (err) {
+      console.error("Error fetching user profile:", err);
+    }
+  };
+
 
   const stats = [
     { title: 'Total Tasks', value: '0', icon: 'bi-list-check', color: 'primary' },
@@ -11,6 +37,14 @@ function EmpDashboard() {
 
   return (
     <div className="container-fluid py-4">
+      {/* --- NEW WELCOME SECTION --- */}
+      <div className="row mb-4">
+        <div className="col-12">
+          <h2 className="fw-bold text-dark">Welcome, {userName}!</h2>
+          <p className="text-muted">Here's what's happening with your projects today.</p>
+        </div>
+      </div>
+
       {/* Top Section: Search and Filter */}
       <div className="row mb-4 align-items-center">
         <div className="col-md-8 mb-3 mb-md-0">

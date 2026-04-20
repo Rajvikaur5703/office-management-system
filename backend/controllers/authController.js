@@ -1,31 +1,43 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
-exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
+// 🔐 LOGIN
+exports.login = async (req, res) => {
   try {
-    // check user
-    const user = await User.findOne({ email });
+    const { email, password } = req.body;
 
-    if (!user || user.password !== password) {
-      return res.status(400).json({ msg: "Invalid credentials" });
+    const user = await User.findOne({ email }).populate("department");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // create token
+    const isMatch = await user.comparePassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
     const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
+      { id: user._id, role: user.role },
+      "secret123",
       { expiresIn: "1d" }
     );
 
-    // response
     res.json({
-      msg: "Login successful",
-      token
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        jobRole: user.jobRole,
+        salary: user.salary,
+        department: user.department
+      }
     });
 
   } catch (err) {
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ message: err.message });
   }
 };

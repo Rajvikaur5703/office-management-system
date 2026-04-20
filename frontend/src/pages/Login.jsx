@@ -32,17 +32,17 @@ function Login() {
         console.log("Login success:", data);
 
         // Extract role from user object
-        const role = data.user.role;
+        const role = data.user.role.trim().toLowerCase();
 
         // Store token and role in localStorage
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", role);
         localStorage.setItem("user", JSON.stringify(data.user));
 
-        // Redirect based on role
+        // Redirect based on rolea
         if (role === "admin") {
           navigate("/admin/dashboard");
-        } else if (role === "user") {
+        } else if (role === "employee" || role === "user") {
           navigate("/employee/dashboard");
         } else {
           setErrorMessage("Unknown user role. Cannot redirect.");

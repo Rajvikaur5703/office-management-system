@@ -1,47 +1,102 @@
-// This logic allows the Admin to manage employees and link them to the Departments you just created.
-const User = require('../models/User');
+const User = require("../models/User");
 
-// Admin: Get all employees
+// GET ALL EMPLOYEES (ONLY EMPLOYEES)
 exports.getAllEmployees = async (req, res) => {
     try {
-        // Find all users where role is 'employee'
-        const employees = await User.find({ role: 'employee' }).select('-password');
-        res.status(200).json(employees);
-    } catch (error) {
-        res.status(500).json({ message: "Server Error" });
+        const users = await User.find({ role: "employee" }).populate("department");
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 };
 
-// Admin: Add a new employee
+// CREATE EMPLOYEE
 exports.addEmployee = async (req, res) => {
     try {
-        const { name, email, password, department } = req.body;
-        
-        // Check if employee already exists
-        const exists = await User.findOne({ email });
-        if (exists) return res.status(400).json({ message: "Employee already exists" });
-
-        const newEmployee = new User({
-            name,
-            email,
-            password, // Hashing happens automatically in your User model!
-            role: 'employee',
-            department
+        const user = new User({
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password,
+            role: "employee",
+            jobRole: req.body.jobRole,
+            salary: req.body.salary,
+            department: req.body.department
         });
 
-        await newEmployee.save();
-        res.status(201).json({ message: "Employee added successfully" });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+        await user.save();
+        res.status(201).json(user);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 };
 
-// Employee: Get specific profile
+// GET SINGLE EMPLOYEE
 exports.getProfile = async (req, res) => {
     try {
-        const employee = await User.findById(req.params.id).select('-password');
-        res.status(200).json(employee);
-    } catch (error) {
-        res.status(404).json({ message: "Employee not found" });
+        const user = await User.findById(req.params.id).populate("department");
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// UPDATE EMPLOYEE
+exports.updateEmployee = async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// DELETE EMPLOYEE
+exports.deleteEmployee = async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ message: "Deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// 👤 LOGGED IN USER (/me)
+exports.getMe = async (req, res) => {
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        const user = await User.findById(req.user.id).populate("department");
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json(user);
+    } catch (err) {
+        console.log(err); // 👈 IMPORTANT FOR DEBUG
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// 📊 EMPLOYEE STATS
+exports.getEmployeeStats = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        res.json({
+            name: user.name,
+            employeeId: user.employeeId,
+            role: user.jobRole,
+            salary: user.salary
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 };

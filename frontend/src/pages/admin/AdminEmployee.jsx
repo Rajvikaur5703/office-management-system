@@ -1,210 +1,246 @@
-import React, { useEffect, useState } from "react";
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function AdminEmployee() {
-  const role = localStorage.getItem("role");
-
-  // 🔒 Restrict access
-  if (role !== "admin") {
-    return <h2 className="text-center mt-5">Access Denied</h2>;
-  }
-
   const [employees, setEmployees] = useState([]);
-  useEffect(() => { fetchEmployees(); }, []);
+  const [departments, setDepartments] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [search, setSearch] = useState("");
+  const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // States for form inputs
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [dept, setDept] = useState("");
+  const [role, setRole] = useState("");
+  const [salary, setSalary] = useState("");
+
+  // Get token from localStorage
+  const token = localStorage.getItem("token");
+  const config = {
+    headers: { Authorization: `Bearer ${token}` }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+    fetchDepartments();
+  }, []);
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/employees");
+      const res = await axios.get("http://localhost:5000/api/emp", config);
       setEmployees(res.data);
+    } catch (err) {
+      console.error("Employee fetch error:", err);
     }
-    catch (err) {
-      console.error("Could not Fetch employees..", err);
-    }
-  }
-
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [newEmployee, setNewEmployee] = useState({ name: "", email: "", password: "", department: "IT" });
-
-  // ✏️ Handle input
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewEmployee({ ...newEmployee, [name]: value });
   };
 
-  // ➕ ADD + ✏️ EDIT (local only)
-  const saveEmployee = async (e) => {
+  const fetchDepartments = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/departments", config);
+      setDepartments(res.data);
+      if (res.data.length > 0) setDept(res.data[0]._id);
+    } catch (err) {
+      console.error("Department fetch error:", err);
+    }
+  };
+
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setPassword("");
+    setRole("");
+    setSalary("");
+    setEditId(null);
+    setShowForm(false);
+    setMsg("");
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      if (editingId) {
-        await axios.put(`http://localhost:5000/api/auth/employee/${editingId}`, newEmployee);
-        alert("Employee Updated ✅");
+      const data = {
+        name,
+        email,
+        password,
+        department: dept,
+        jobRole: role,
+        salary: Number(salary),
+      };
+
+      if (editId) {
+        await axios.put(`http://localhost:5000/api/emp/${editId}`, data, config);
+        setMsg("Employee updated successfully! ✅");
+      } else {
+        await axios.post("http://localhost:5000/api/emp", data, config);
+        setMsg("Employee created successfully! ✅");
       }
-      else {
-        // ➕ Logic for Add (POST request)
-        await axios.post("http://localhost:5000/api/auth/register", newEmployee);
-        alert("Employee Added ✅");
-      }
+
+      setTimeout(() => setMsg(""), 3000); // Message hide after 3s
+      resetForm();
       fetchEmployees();
-      setNewEmployee({ name: "", email: "", password: "", department: "" });
-      setEditingId(null);
-      setShowForm(false);
+    } catch (err) {
+      setMsg(err.response?.data?.message || "Error occurred ❌");
     }
-    catch (err) {
-      alert(err.response?.data?.msg || "Action failed");
-    }
+    setLoading(false);
   };
 
-  // ✏️ Edit
-  const editEmployee = (emp) => {
-    setNewEmployee({
-      name: emp.name,
-      email: emp.email,
-      password: "",
-      department: emp.department || ""
-    });
-    setEditingId(emp._id);
+  const handleEdit = (emp) => {
+    setEditId(emp._id);
+    setName(emp.name);
+    setEmail(emp.email);
+    setRole(emp.jobRole);
+    setSalary(emp.salary);
+    setDept(emp.department?._id || "");
     setShowForm(true);
+    window.scrollTo(0, 0); // Scroll to top to see the form
   };
 
-  // ❌ Delete (local only)
-  const deleteEmployee = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
-    try {
-      await axios.delete(`http://localhost:5000/api/auth/employee/${id}`);
-      alert("Deleted Successfully");
-      fetchEmployees(); // Refresh list
-    }
-    catch (err) {
-      alert("Delete failed");
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this employee?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/emp/${id}`, config);
+        setMsg("Employee deleted successfully");
+        fetchEmployees();
+      } catch (err) {
+        setMsg("Error deleting employee");
+      }
     }
   };
+
+  const filtered = employees.filter(
+    (e) =>
+      e.name?.toLowerCase().includes(search.toLowerCase()) ||
+      e.email?.toLowerCase().includes(search.toLowerCase()) ||
+      e.employeeId?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="container-fluid py-4">
-      {/* Header */}
+    <div className="container mt-4 pb-5">
+      {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="fw-bold">Employee Management</h2>
-        <button className="btn btn-primary" onClick={() => setShowForm(true)}>
-          + Add Employee
+        <div>
+          <h2 className="fw-bold text-dark mb-0">Employee Management</h2>
+          <span className="badge bg-info text-dark">Total: {employees.length}</span>
+        </div>
+        <button
+          className={`btn ${showForm ? "btn-secondary" : "btn-primary"} shadow-sm`}
+          onClick={() => {
+            if (showForm) resetForm();
+            else setShowForm(true);
+          }}
+        >
+          {showForm ? "Cancel" : "+ Add Employee"}
         </button>
       </div>
 
-      {/* Form */}
+      {/* ALERT MESSAGE */}
+      {msg && <div className="alert alert-primary border-0 shadow-sm">{msg}</div>}
+
+      {/* SEARCH BAR */}
+      <div className="mb-4">
+        <div className="input-group shadow-sm">
+          <span className="input-group-text bg-white border-end-0 text-muted">🔍</span>
+          <input
+            className="form-control border-start-0 ps-0"
+            placeholder="Search by name, email, or Employee ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* FORM SECTION */}
       {showForm && (
-        <div className="card mb-4 p-3 bg-light">
-          <h5 className="fw-bold mb-3">
-            {editingId ? "Edit Employee" : "Add Employee"}
-          </h5>
-
-          <form onSubmit={saveEmployee} className="row g-3">
-            <div className="col-md-3">
-              <input
-                name="name"
-                className="form-control"
-                placeholder="Name"
-                value={newEmployee.name}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-
-            <div className="col-md-3">
-              <input
-                name="email"
-                type="email"
-                className="form-control"
-                placeholder="Email"
-                value={newEmployee.email}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-
-            {!editingId && (
-              <div className="col-md-2">
-                <input
-                  name="password"
-                  type="password"
-                  className="form-control"
-                  placeholder="Password"
-                  value={newEmployee.password}
-                  onChange={handleInputChange}
-                  required
-                />
+        <div className="card mb-4 shadow border-0 animate__animated animate__fadeIn">
+          <div className="card-header bg-dark text-white py-3">
+            <h5 className="mb-0">{editId ? "Edit Employee Details" : "Register New Employee"}</h5>
+          </div>
+          <div className="card-body p-4">
+            <form onSubmit={handleSubmit}>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label className="form-label fw-bold small">Full Name</label>
+                  <input className="form-control" value={name} onChange={(e) => setName(e.target.value)} required placeholder="John Doe" />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-bold small">Email Address</label>
+                  <input className="form-control" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="john@company.com" />
+                </div>
+                {!editId && (
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold small">Password</label>
+                    <input className="form-control" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Min 6 characters" />
+                  </div>
+                )}
+                <div className="col-md-6">
+                  <label className="form-label fw-bold small">Department</label>
+                  <select className="form-select" value={dept} onChange={(e) => setDept(e.target.value)} required>
+                    <option value="">-- Choose Dept --</option>
+                    {departments.map((d) => (
+                      <option key={d._id} value={d._id}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-bold small">Designation / Role</label>
+                  <input className="form-control" value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Senior Developer" />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-bold small">Salary (Monthly)</label>
+                  <input className="form-control" type="number" value={salary} onChange={(e) => setSalary(e.target.value)} placeholder="e.g. 50000" />
+                </div>
+                <div className="col-12 mt-4">
+                  <button className="btn btn-success px-5 py-2 fw-bold w-100 shadow-sm" disabled={loading}>
+                    {loading ? "Processing..." : editId ? "Update Employee Info" : "Save Employee"}
+                  </button>
+                </div>
               </div>
-            )}
-
-            <div className="col-md-2">
-              <select name="department" className="form-select" value={newEmployee.department} onChange={handleInputChange}>
-                <option value="IT">IT</option>
-                <option value="HR">HR</option>
-                <option value="Finance">Finance</option>
-                <option value="Marketing">Marketing</option>
-              </select>
-            </div>
-
-            <div className="col-md-2 d-flex gap-2">
-              <button className="btn btn-success w-100">
-                {editingId ? "Update" : "Save"}
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingId(null);
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       )}
 
-      {/* Table */}
-      <div className="card">
+      {/* EMPLOYEES TABLE */}
+      <div className="card border-0 shadow-sm">
         <div className="table-responsive">
-          <table className="table table-hover">
-            <thead>
+          <table className="table table-hover align-middle mb-0">
+            <thead className="table-light">
               <tr>
-                <th>ID</th>
+                <th className="ps-3">#</th>
+                <th>Employee ID</th>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Department</th>
-                <th>Actions</th>
+                <th>Dept</th>
+                <th>Role</th>
+                <th>Salary</th>
+                <th className="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {employees.length > 0 ? (
-                employees.map((emp) => (
+              {filtered.length > 0 ? (
+                filtered.map((emp, i) => (
                   <tr key={emp._id}>
-                    <td>{emp._id.slice(-4)}</td>
-                    <td>{emp.name}</td>
+                    <td className="ps-3 text-muted">{i + 1}</td>
+                    <td><span className="badge bg-light text-primary border">{emp.employeeId}</span></td>
+                    <td className="fw-bold">{emp.name}</td>
                     <td>{emp.email}</td>
-                    <td>{emp.department}</td>
-                    <td>
-                      <button
-                        className="btn btn-primary btn-sm me-2"
-                        onClick={() => editEmployee(emp)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => deleteEmployee(emp._id)}
-                      >
-                        Delete
-                      </button>
+                    <td><span className="badge bg-secondary opacity-75">{emp.department?.name || "N/A"}</span></td>
+                    <td>{emp.jobRole || "-"}</td>
+                    <td className="fw-semibold">₹{emp.salary?.toLocaleString()}</td>
+                    <td className="text-center">
+                      <button className="btn btn-sm btn-outline-warning me-2" onClick={() => handleEdit(emp)}>Edit</button>
+                      <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(emp._id)}>Delete</button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center">
-                    No employees found
-                  </td>
+                  <td colSpan="8" className="text-center py-5 text-muted">No employees found matching your search.</td>
                 </tr>
               )}
             </tbody>
