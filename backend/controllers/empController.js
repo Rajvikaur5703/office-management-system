@@ -47,8 +47,7 @@ exports.updateEmployee = async (req, res) => {
             req.params.id,
             req.body,
             { new: true }
-        );
-
+        ).populate("department");
         res.json(user);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -68,11 +67,15 @@ exports.deleteEmployee = async (req, res) => {
 // 👤 LOGGED IN USER (/me)
 exports.getMe = async (req, res) => {
     try {
-        if (!req.user || !req.user.id) {
-            return res.status(401).json({ message: "Unauthorized" });
+        // Check for both .id and ._id just in case
+        const userId = req.user.id || req.user._id;
+
+        if (!userId) {
+            console.error("No ID found in token payload:", req.user);
+            return res.status(401).json({ message: "Invalid token payload" });
         }
 
-        const user = await User.findById(req.user.id).populate("department");
+        const user = await User.findById(userId).populate("department");
 
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -80,7 +83,7 @@ exports.getMe = async (req, res) => {
 
         res.json(user);
     } catch (err) {
-        console.log(err); // 👈 IMPORTANT FOR DEBUG
+        console.error("getMe Error:", err);
         res.status(500).json({ message: err.message });
     }
 };
