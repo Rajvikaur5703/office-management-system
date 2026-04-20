@@ -9,8 +9,11 @@ function Layout({ role }) {
       <Sidebar role={role} />
 
       {/* Main content area changes based on the URL */}
-      <div className="layout-content" style={{ flex: 1, padding: "20px" }}>
-        <Outlet /> 
+      <div className="layout-content" style={{
+        flex: 1, padding: "20px", marginLeft: "250px", minHeight: "100vh",
+        backgroundColor: "#f8f9fa"
+      }}>
+        <Outlet />
       </div>
     </div>
   );

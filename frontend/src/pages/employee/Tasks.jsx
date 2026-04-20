@@ -1,48 +1,41 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-
 
 function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [editingTaskId, setEditingTaskId] = useState(null);
+  const [loading, setLoading] = useState(true); // Added missing loading state
 
-  // Calculate real stats from tasks
-  const totalTasks = tasks.length;
-  const pendingTasks = tasks.filter(
-    (task) => task.status === "pending").length;
-
-  const inProgressTasks = tasks.filter(
-    (task) => task.status === "in-progress").length;
-
-  const completedTasks = tasks.filter(
-    (task) => task.status === "completed").length;
-
-
-  const stats = [
-    { title: 'Total Tasks', value: totalTasks, icon: 'bi-list-task', color: 'primary' },
-    { title: 'Pending', value: pendingTasks, icon: 'bi-clock-history', color: 'danger' },
-    { title: 'In Progress', value: inProgressTasks, icon: 'bi-gear-wide-connected', color: 'warning' },
-    { title: 'Completed', value: completedTasks, icon: 'bi-check2-circle', color: 'success' }
-  ];
-
+  // Get Auth data
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
-  const employeeName = user?.name;
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  const fetchTasks = async () => {
+  // Try to get ID first, fall back to name if that's how your API is set up
+  const employeeIdentifier = user?._id || user?.id || user?.name;
+
+  const fetchTasks = useCallback(async () => {
+    if (!employeeIdentifier) {
+      setLoading(false);
+      return;
+    }
+
     try {
+      setLoading(true);
       const res = await axios.get(
-        `http://localhost:5000/api/tasks/employee/${employeeName}`
+        `http://localhost:5000/api/tasks/employee/${employeeIdentifier}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setTasks(res.data);
     } catch (err) {
-      console.log(err);
+      console.error("Error fetching tasks:", err);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [employeeIdentifier, token]);
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
   const updateStatus = async (taskId, newStatus) => {
     try {
@@ -51,14 +44,25 @@ function Tasks() {
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       fetchTasks();
     } catch (err) {
-      console.error("Failed to update status");
+      console.error("Failed to update status", err);
     }
   };
 
-  // Easy helper for Priority colors
+  // Stats Logic
+  const totalTasks = tasks.length;
+  const pendingTasks = tasks.filter(t => t.status === "pending").length;
+  const inProgressTasks = tasks.filter(t => t.status === "in-progress").length;
+  const completedTasks = tasks.filter(t => t.status === "completed").length;
+
+  const stats = [
+    { title: 'Total Tasks', value: totalTasks, icon: 'bi-list-task', color: 'primary' },
+    { title: 'Pending', value: pendingTasks, icon: 'bi-clock-history', color: 'danger' },
+    { title: 'In Progress', value: inProgressTasks, icon: 'bi-gear-wide-connected', color: 'warning' },
+    { title: 'Completed', value: completedTasks, icon: 'bi-check2-circle', color: 'success' }
+  ];
+
   const getPriorityClass = (priority) => {
     if (priority === 'High') return 'text-danger fw-bold';
     if (priority === 'Medium') return 'text-warning fw-bold';
@@ -69,7 +73,7 @@ function Tasks() {
     <div className="container-fluid py-4">
       <h2 className="fw-bold mb-4">My Tasks</h2>
 
-      {/* Stats Cards Row */}
+      {/* Stats Cards */}
       <div className="row g-3 mb-5">
         {stats.map((stat, index) => (
           <div key={index} className="col-12 col-sm-6 col-xl-3">
@@ -105,39 +109,47 @@ function Tasks() {
               </tr>
             </thead>
             <tbody>
-              {tasks.map((task, index) => (
-                <tr key={index}>
-                  <td className="ps-4 fw-bold">{task.title}</td>
-                  <td><i className="bi bi-calendar-event me-2 text-muted"></i>{task.dueDate}</td>
-                  <td>
-                    <span className={getPriorityClass(task.priority)}>
-                      ● {task.priority}
-                    </span>
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-5">
+                    <div className="spinner-border text-primary" role="status"></div>
+                    <div className="mt-2">Loading tasks...</div>
                   </td>
-                  <td>
-                    <span
-                      className={`badge rounded-pill px-3 py-2 
+                </tr>
+              ) : tasks.length > 0 ? (
+                tasks.map((task) => (
+                  <tr key={task._id}>
+                    <td className="ps-4 fw-bold">{task.title}</td>
+                    <td>{task.dueDate ? task.dueDate.split("T")[0] : "No Deadline"}</td>
+                    <td>
+                      <span className={getPriorityClass(task.priority)}>
+                        ● {task.priority || 'Normal'}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge rounded-pill px-3 py-2 
                         ${task.status === "completed" ? "bg-success"
                           : task.status === "in-progress" ? "bg-warning text-dark" : "bg-secondary"}`}>
-
-                      {task.status === "pending" ? "Pending" : task.status === "in-progress"
-                        ? "In Progress" : "Completed"}
-                    </span>
-                  </td>
-                  <td className="text-end pe-4">
-                    {editingTaskId === task._id ?
-                      (
-                        <div className="btn-group btn-group-sm">
-                          <button className={`btn ${task.status === "pending" ? "btn-secondary" : "btn-outline-secondary"}`}
-                            onClick={() => { updateStatus(task._id, "pending"); setEditingTaskId(null); }}> Pending
+                        {task.status === "pending" ? "Pending" : task.status === "in-progress" ? "In Progress" : "Completed"}
+                      </span>
+                    </td>
+                    <td className="text-end pe-4">
+                      {editingTaskId === task._id ? (
+                        <div className="btn-group btn-group-sm shadow-sm">
+                          <button
+                            className={`btn ${task.status === "pending" ? "btn-secondary" : "btn-outline-secondary"}`}
+                            onClick={() => { updateStatus(task._id, "pending"); setEditingTaskId(null); }}>
+                            Pending
                           </button>
-
-                          <button className={`btn ${task.status === "in-progress" ? "btn-warning" : "btn-outline-warning"}`}
-                            onClick={() => { updateStatus(task._id, "in-progress"); setEditingTaskId(null); }}> In Progress
+                          <button
+                            className={`btn ${task.status === "in-progress" ? "btn-warning" : "btn-outline-warning"}`}
+                            onClick={() => { updateStatus(task._id, "in-progress"); setEditingTaskId(null); }}>
+                            In Progress
                           </button>
-
-                          <button className={`btn ${task.status === "completed" ? "btn-success" : "btn-outline-success"}`}
-                            onClick={() => { updateStatus(task._id, "completed"); setEditingTaskId(null); }}> Completed
+                          <button
+                            className={`btn ${task.status === "completed" ? "btn-success" : "btn-outline-success"}`}
+                            onClick={() => { updateStatus(task._id, "completed"); setEditingTaskId(null); }}>
+                            Completed
                           </button>
                         </div>
                       ) : (
@@ -145,9 +157,17 @@ function Tasks() {
                           Update
                         </button>
                       )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-5 text-muted">
+                    <i className="bi bi-clipboard-x fs-2 d-block mb-2"></i>
+                    No tasks found for your account.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

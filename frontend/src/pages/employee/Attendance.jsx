@@ -4,7 +4,7 @@ import axios from "axios";
 function Attendance() {
   const [showpopup, setshowpopup] = useState(false);
   const [status, setStatus] = useState("Not Marked");
-  const [pin, setpin] = useState();
+  const [pin, setpin] = useState("");
   const [checkInTime, setCheckInTime] = useState("- -");
   const [history, sethistory] = useState([]);
   const [checkInDate, setCheckInDate] = useState(null);
@@ -62,12 +62,46 @@ function Attendance() {
   };
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const fetchAttendance = async () => {
+      const userData = localStorage.getItem("user");
 
-    axios.get(`http://localhost:5000/api/attendance/${user._id}`)
-      .then(res => sethistory(res.data))
-      .catch(err => console.log(err));
-  }, []);
+      // Check if userData exists and isn't just an empty string/undefined
+      if (!userData || userData === "undefined") {
+        console.log("No user found in localStorage yet...");
+        return;
+      }
+
+      try {
+        const user = JSON.parse(userData);
+        const res = await axios.get(`http://localhost:5000/api/attendance/${user._id}`);
+
+        // Force the data to be an array so .map() doesn't break
+        const data = Array.isArray(res.data) ? res.data : [];
+        sethistory(data);
+
+        if (data.length > 0) {
+          const latest = data[0];
+          const isToday = latest.date.trim().toLowerCase() === today.trim().toLowerCase();
+          const hasNotCheckedOut = !latest.checkOut || latest.checkOut === "-";
+
+          if (isToday) {
+            if (hasNotCheckedOut) {
+              setStatus("Present");
+              setCheckInTime(latest.checkIn);
+              // ... (keep your time parsing logic here)
+            } else {
+              setStatus("Checked Out");
+              setCheckInTime(latest.checkIn);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+
+    fetchAttendance();
+  }, [today]);
 
 
 
@@ -196,17 +230,27 @@ function Attendance() {
                   </tr>
                 </thead>
                 <tbody>
-                  {history.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.date}</td>
-                      <td>{item.checkIn}</td>
-                      <td>{item.checkOut}</td>
-                      <td>{item.hours}</td>
-                      <td className="pe-4 text-end">
-                        <span className="badge bg-success-subtle text-success">{item.status}</span>
+                  {history.length > 0 ? (
+                    history.map((item, index) => (
+                      <tr key={item._id || index}>
+                        <td>{item.date}</td>
+                        <td>{item.checkIn}</td>
+                        <td>{item.checkOut || "- -"}</td>
+                        <td>{item.hours || "- -"}</td>
+                        <td className="pe-4 text-end">
+                          <span className="badge bg-success-subtle text-success">
+                            {item.status || "Completed"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="text-center py-4 text-muted">
+                        No attendance records found.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

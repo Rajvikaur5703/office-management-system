@@ -2,17 +2,21 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function EmpDashboard() {
-  const [userName, setUserName] = useState("User"); // Default fallback
-  const token = localStorage.getItem("token");
+  const [empName, setEmpName] = useState("Employee");
 
   useEffect(() => {
-    // 1. If you store the name directly in localStorage during login:
-    const storedName = localStorage.getItem("userName");
-    if (storedName) {
-      setUserName(storedName);
-    } else {
-      // 2. Alternatively, fetch it from your /api/emp/me endpoint
-      fetchUserProfile();
+    const userString = localStorage.getItem("user");
+
+    if (userString) {
+      try {
+        const userData = JSON.parse(userString);
+        // 3. Update state if the name exists in the stored object
+        if (userData && userData.name) {
+          setEmpName(userData.name);
+        }
+      } catch (err) {
+        console.error("Error parsing user data from localStorage", err);
+      }
     }
   }, []);
 
@@ -40,7 +44,7 @@ function EmpDashboard() {
       {/* --- NEW WELCOME SECTION --- */}
       <div className="row mb-4">
         <div className="col-12">
-          <h2 className="fw-bold text-dark">Welcome, {userName}!</h2>
+          <h2 className="fw-bold text-dark">Welcome, {empName}!</h2>
           <p className="text-muted">Here's what's happening with your projects today.</p>
         </div>
       </div>

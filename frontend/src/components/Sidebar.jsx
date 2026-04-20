@@ -28,7 +28,9 @@ function Sidebar({ role }) {
   const currentMenu = menus[role] || [];
 
   return (
-    <div className="bg-dark text-white vh-100 p-3" style={{ width: "250px" }}>
+    <div className="bg-dark text-white vh-100 p-3 position-fixed top-0 start-0 shadow" style={{
+      width: "250px", zIndex: 1000, overflowY: "auto"
+    }}>
       <h4 className="text-center mb-4 border-bottom pb-3">
         {role === "admin" ? "Admin Panel" : "Employee Portal"}
       </h4>

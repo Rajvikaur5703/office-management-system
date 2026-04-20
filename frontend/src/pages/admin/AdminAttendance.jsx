@@ -5,7 +5,7 @@ function AdminAttendance() {
   // Simple data array - easy to manage or fetch from an API later
   const [attendanceData, setAttendanceData] = useState([]);
   const [editAttendance, seteditAttendance] = useState(null);
-  
+
   const token = localStorage.getItem("token");
   const fetchAttendance = async () => {
     try {
@@ -19,7 +19,7 @@ function AdminAttendance() {
   useEffect(() => {
     fetchAttendance();
   }, []);
-  
+
   const updateStatus = async (attendanceId, newStatus) => {
     try {
       await axios.put(
@@ -74,25 +74,25 @@ function AdminAttendance() {
                     <td>{emp.hours}</td>
                     <td className="text-end pe-4">
                       {editAttendance === emp._id ?
-                      (
-                        <div className="btn-group btn-group-sm">
-                          <button className={`btn ${emp.status === "Absent" ? "btn-warning" : "btn-outline-warning"}`}
-                            onClick={() => { updateStatus(emp._id, "Absent"); seteditAttendance(null); }}> Absent
-                          </button>
+                        (
+                          <div className="btn-group btn-group-sm">
+                            <button className={`btn ${emp.status === "Absent" ? "btn-warning" : "btn-outline-warning"}`}
+                              onClick={() => { updateStatus(emp._id, "Absent"); seteditAttendance(null); }}> Absent
+                            </button>
 
-                          <button className={`btn ${emp.status === "Present" ? "btn-success" : "btn-outline-success"}`}
-                            onClick={() => { updateStatus(emp._id, "Present"); seteditAttendance(null); }}> Present
-                          </button>
-                        </div>
-                      ) : (
-                         <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => seteditAttendance(emp._id)}>
+                            <button className={`btn ${emp.status === "Present" ? "btn-success" : "btn-outline-success"}`}
+                              onClick={() => { updateStatus(emp._id, "Present"); seteditAttendance(null); }}> Present
+                            </button>
+                          </div>
+                        ) : (
+                          <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => seteditAttendance(emp._id)}>
                             Edit
-                         </button>
-                        // <button className="btn btn-sm btn-outline-primary px-3" onClick={() => setEditingTaskId(task._id)}>
-                        //   Update
-                        // </button>
-                      )}
-                     
+                          </button>
+                          // <button className="btn btn-sm btn-outline-primary px-3" onClick={() => setEditingTaskId(task._id)}>
+                          //   Update
+                          // </button>
+                        )}
+
                     </td>
                   </tr>
                 ))}

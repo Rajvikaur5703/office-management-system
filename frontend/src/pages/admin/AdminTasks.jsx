@@ -2,165 +2,377 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function AdminTasks() {
-  // 1. Re-enable state variables
   const [tasks, setTasks] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+
   const [title, setTitle] = useState("");
   const [assigned, setAssigned] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const [editId, setEditId] = useState(null);
-  const [employees, setEmployees] = useState([]);
+
   const token = localStorage.getItem("token");
 
-  // 1. Fetch employees from backend
-  const fetchEmployees = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/auth/employees");
-      setEmployees(res.data);
-    } catch (err) {
-      console.log("Error fetching employees");
-    }
-  };
-
-
-  // 2. Fetch tasks from backend on component mount
-  const fetchTasks = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/tasks/my-tasks", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setTasks(res.data);
-    } catch (err) {
-      console.error("Error fetching tasks:", err);
-    }
-  };
-
   useEffect(() => {
-    fetchTasks();
-    fetchEmployees();
+    getTasks();
+    getEmployees();
   }, []);
 
-  // 3. Add or Update Task
-  const addTask = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (msg) {
+      setTimeout(() => setMsg(""), 3000);
+    }
+  }, [msg]);
+
+  const getTasks = async () => {
     try {
-      if (editId) {
-        // Update existing task
-        await axios.put(`http://localhost:5000/api/tasks/update-task/${editId}`,
-          { title, assigned, dueDate },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setEditId(null);
-      } else {
-        // Add new task
-        await axios.post("http://localhost:5000/api/tasks/add",
-          { title, assigned, dueDate },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      }
-      // Reset form and refresh list
-      setTitle(""); setAssigned(""); setDueDate("");
-      fetchTasks();
+      const res = await axios.get("http://localhost:5000/api/tasks/my-tasks");
+      setTasks(res.data);
     } catch (err) {
-      alert(err.response?.data?.message || "Operation failed");
+      console.log(err);
     }
   };
 
-  // 4. Edit Helper (Sets form values)
+  const getEmployees = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/emp", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setEmployees(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const data = {
+        title,
+        assigned,
+        dueDate,
+        status: "pending" // Add status explicitly
+      };
+
+      if (editId) {
+        await axios.put(`http://localhost:5000/api/tasks/update-task/${editId}`, data);
+        setMsg("Task updated!");
+      } else {
+        await axios.post("http://localhost:5000/api/tasks/add", data);
+        setMsg("Task added!");
+      }
+
+      setTitle("");
+      setAssigned("");
+      setDueDate("");
+      setEditId(null);
+      setShowForm(false);
+      getTasks();
+    } catch (err) {
+      setMsg("Something went wrong!");
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const editTask = (task) => {
+    setEditId(task._id);
     setTitle(task.title);
     setAssigned(task.assigned);
     setDueDate(task.dueDate);
-    setEditId(task._id); // MongoDB uses _id
+    setShowForm(true);
+    window.scrollTo(0, 0);
   };
 
-  // 5. Delete Task
-  const deleteTask = async (id) => {
-    if (window.confirm("Delete this task?")) {
+  const deleteTask = async (id, title) => {
+    if (window.confirm(`Delete "${title}"?`)) {
       try {
-        await axios.delete(`http://localhost:5000/api/tasks/delete/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        fetchTasks();
+        await axios.delete(`http://localhost:5000/api/tasks/delete/${id}`);
+        setMsg("Task deleted!");
+        getTasks();
       } catch (err) {
-        alert("Could not delete task");
+        setMsg("Delete failed!");
       }
     }
   };
 
-  return (
-    <div className="container-fluid py-4">
-      <h2 className="fw-bold mb-4">Task Management</h2>
+  const updateStatus = async (id, currentStatus) => {
+    const newStatus = currentStatus === "pending" ? "completed" : "pending";
+    const taskToUpdate = tasks.find(t => t._id === id); // Get the rest of the task data
+    try {
+      await axios.put(`http://localhost:5000/api/tasks/update-status/${id}`, { status: newStatus });
+      getTasks();
+      setMsg(`Task marked as ${newStatus}!`);
+    } catch (err) {
+      setMsg("Status update failed!");
+      console.log(err);
+    }
+  };
 
-      {/* Form Section */}
-      <div className="card shadow-sm border-0 mb-4 bg-light">
-        <div className="card-body">
-          <form className="row g-3 align-items-end" onSubmit={addTask}>
-            <div className="col-md-4">
-              <label className="form-label small fw-bold">Task Title</label>
-              <input type="text" className="form-control" placeholder="What needs to be done?" value={title} onChange={(e) => setTitle(e.target.value)} required />
-            </div>
-            <div className="col-md-3">
-              <label className="form-label small fw-bold">Assign To</label>
-              <select className="form-select" value={assigned} onChange={(e) => setAssigned(e.target.value)} required >
-                <option value="">Select Employee</option>
-                {employees.map((emp) => (
-                  <option key={emp._id} value={emp.name}> {emp.name} </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-md-3">
-              <label className="form-label small fw-bold">Due Date</label>
-              <input type="date" className="form-control" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
-            </div>
-            <div className="col-md-2">
-              <button type="submit" className={`btn w-100 ${editId ? 'btn-warning' : 'btn-primary'}`}>
-                {editId ? 'Update Task' : 'Add Task'}
-              </button>
-            </div>
-          </form>
+  const cancelForm = () => {
+    setShowForm(false);
+    setEditId(null);
+    setTitle("");
+    setAssigned("");
+    setDueDate("");
+  };
+
+  const filteredTasks = tasks.filter(task =>
+    task.title?.toLowerCase().includes(search.toLowerCase()) ||
+    task.assigned?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const totalTasks = tasks.length;
+  const pendingTasks = tasks.filter(t => t.status === "pending").length;
+  const inProgressTasks = tasks.filter(t => t.status === "in-progress").length;
+  const completedTasks = tasks.filter(t => t.status === "completed").length;
+
+  const stats = [
+    { title: 'Total Tasks', value: totalTasks, icon: 'bi-list-task', color: 'primary' },
+    { title: 'Pending', value: pendingTasks, icon: 'bi-clock-history', color: 'danger' },
+    { title: 'In Progress', value: inProgressTasks, icon: 'bi-gear-wide-connected', color: 'warning' },
+    { title: 'Completed', value: completedTasks, icon: 'bi-check2-circle', color: 'success' }
+  ];
+
+  return (
+    <div className="container mt-4">
+
+      {/* Header */}
+      <div className="row mb-4">
+        <div className="col-12">
+          <h2>Task Management</h2>
+          <p className="text-muted">Total tasks: {tasks.length}</p>
         </div>
       </div>
 
-      {/* Table Section */}
+      {/* Message */}
+      {msg && (
+        <div className="alert alert-info alert-dismissible">
+          {msg}
+          <button type="button" className="btn-close float-end" onClick={() => setMsg("")}></button>
+        </div>
+      )}
+
+      {/* Stats Cards */}
+      <div className="row g-3 mb-5">
+        {stats.map((stat, index) => (
+          <div key={index} className="col-12 col-sm-6 col-xl-3">
+            <div className="card border-0 shadow-sm">
+              <div className="card-body d-flex align-items-center">
+                <div className={`rounded-circle p-3 bg-${stat.color} bg-opacity-10 text-${stat.color} me-3`}>
+                  <i className={`bi ${stat.icon} fs-4`}></i>
+                </div>
+                <div>
+                  <p className="text-muted small mb-0">{stat.title}</p>
+                  <h4 className="fw-bold mb-0">{stat.value}</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Search and Add Button */}
+      <div className="row mb-3">
+        <div className="col-md-6">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by task or employee..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="col-md-6 text-end">
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm ? "Close Form" : "+ Add Task"}
+          </button>
+        </div>
+      </div>
+
+      {/* Add/Edit Form */}
+      {showForm && (
+        <div className="card mb-4">
+          <div className="card-header">
+            <h5>{editId ? "Edit Task" : "Add New Task"}</h5>
+          </div>
+          <div className="card-body">
+            <form onSubmit={handleSubmit}>
+              <div className="row align-items-end"> {/* align-items-end keeps buttons level with inputs */}
+                <div className="col-md-4 mb-3">
+                  <label className="form-label">Task Title *</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter task title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="col-md-3 mb-3">
+                  <label className="form-label">Assign To *</label>
+                  <select
+                    className="form-select"
+                    value={assigned}
+                    onChange={(e) => setAssigned(e.target.value)}
+                    required
+                  >
+                    <option value="">Select Employee</option>
+                    {/* Add a check for employees.length to ensure it's loaded */}
+                    {employees && employees.length > 0 ? (
+                      employees.map((emp) => (
+                        <option key={emp._id} value={emp._id}>
+                          {emp.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>No employees found</option>
+                    )}
+                  </select>
+                </div>
+                <div className="col-md-3 mb-3">
+                  <label className="form-label">Due Date *</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Buttons are now inside the row */}
+                <div className="col-md-2 mb-3">
+                  <label>&nbsp;</label>
+                  <div className="d-flex gap-2">
+                    <button type="submit" className="btn btn-primary btn-sm flex-fill" disabled={loading}>
+                      {loading ? "..." : (editId ? "Update" : "Save")}
+                    </button>
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={cancelForm}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Tasks Table */}
       <div className="card shadow-sm border-0">
         <div className="table-responsive">
           <table className="table table-hover align-middle mb-0">
-            <thead className="table-dark">
+            <thead className="table-light">
               <tr>
-                <th className="ps-4">Task</th>
+                <th>#</th>
+                <th>Task Title</th>
                 <th>Assigned To</th>
                 <th>Status</th>
                 <th>Due Date</th>
-                <th className="text-end pe-4">Actions</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {tasks.map((task) => (
-                <tr key={task._id}>
-                  <td className="ps-4">
-                    <div className="fw-bold">{task.title}</div>
-                  </td>
-                  <td><span className="text-muted">{task.assigned}</span></td>
-                  <td>
-                    <span className={`badge rounded-pill ${task.status === 'pending' ? 'bg-warning text-dark' :
-                      task.status === 'in-progress' ? 'bg-info text-white' : 'bg-success'
-                      }`}>
-                      {task.status}
-                    </span>
-                  </td>
-                  <td>{task.dueDate}</td>
-                  <td className="text-end pe-4">
-                    <button className="btn btn-sm btn-outline-primary me-2" onClick={() => editTask(task)}>Edit</button>
-                    <button className="btn btn-sm btn-outline-danger" onClick={() => deleteTask(task._id)}>Delete</button>
-                  </td>
+              {filteredTasks.length > 0 ? (
+                filteredTasks.map((task, idx) => {
+                  // FIX 1: Find the employee name based on the assigned ID
+                  const assignedEmployee = employees.find(emp => emp._id === task.assigned);
+
+                  return (
+                    <tr key={task._id}>
+                      <td>{idx + 1}</td>
+                      <td>{task.title}</td>
+                      {/* Display Name if found, otherwise show "Unknown" or the ID */}
+                      <td>{assignedEmployee ? assignedEmployee.name : "Unknown Employee"}</td>
+                      <td>
+                        <span
+                          className={`badge rounded-pill px-3 py-2 
+                    ${task.status === "completed" ? "bg-success"
+                              : task.status === "in-progress" ? "bg-warning text-dark" : "bg-secondary"}`}>
+                          {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+                        </span>
+                      </td>
+                      <td>{task.dueDate ? task.dueDate.split('T')[0] : "N/A"}</td>
+                      <td>
+                        <button
+                          className="btn btn-sm btn-warning me-1"
+                          onClick={() => editTask(task)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-sm btn-danger"
+                          onClick={() => deleteTask(task._id, task.title)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center py-4">No tasks found</td>
                 </tr>
-              ))}
+              )}
             </tbody>
+            {/* <tbody>
+              {filteredTasks.length > 0 ? (
+                filteredTasks.map((task, idx) => (
+                  <tr key={task._id}>
+                    <td>{idx + 1}</td>
+                    <td>{task.title}</td>
+                    <td>{task.assigned}</td>
+                    <td>
+                      <button
+                        className={`btn btn-sm ${task.status === "completed" ? "btn-success" : "btn-warning"}`}
+                        onClick={() => updateStatus(task._id, task.status)}
+                      >
+                        {task.status || "pending"}
+                      </button>
+                    </td>
+                    <td>{task.dueDate}</td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-warning me-1"
+                        onClick={() => editTask(task)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => deleteTask(task._id, task.title)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center py-4">
+                    No tasks found
+                  </td>
+                </tr>
+              )}
+            </tbody> */}
           </table>
         </div>
       </div>
+
     </div>
   );
 }
 
-export default AdminTasks;
+export default AdminTasks;   

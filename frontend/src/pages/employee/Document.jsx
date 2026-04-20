@@ -20,12 +20,12 @@ function Document() {
 
     // Helper function to trigger upload when file is chosen
     const handleFileChange = (e) => {
-    const file = e.target.files[0]; // This grabs the file you picked in Windows
-    if (file) {
-        console.log("File selected:", file.name);
-        uploadFile(file); // This sends it to your backend
-    }
-};
+        const file = e.target.files[0]; // This grabs the file you picked in Windows
+        if (file) {
+            console.log("File selected:", file.name);
+            uploadFile(file); // This sends it to your backend
+        }
+    };
 
     const uploadFile = async (file) => {
         const formData = new FormData();
@@ -51,8 +51,8 @@ function Document() {
 
     // Filter logic
     const filtered = filter === "all"
-    ? documents
-    : documents.filter(doc => doc.type?.toLowerCase() === filter.toLowerCase());
+        ? documents
+        : documents.filter(doc => doc.type?.toLowerCase() === filter.toLowerCase());
 
     return (
         <div className="container-fluid py-4">
@@ -95,27 +95,19 @@ function Document() {
             </div>
 
             {/* Files List */}
-            <div className="card shadow-sm border-0">
-                <div className="d-flex justify-content-between align-items-center">
-                    <h5 className="mb-0 fw-bold">
-                        Files {filter !== "all" && <span className="badge bg-info ms-2 text-dark">{filter}</span>}
-                    </h5>
-                    <input type="file" id="fileUpload" style={{ display: "none" }} onChange={handleFileChange} />
-
-                    <input
-    type="file"
-    id="fileUpload"
-    // This tells the OS exactly what files you want, 
-    // which usually prioritizes the local hard drive.
-    accept=".pdf, .docx, .xlsx, .txt" 
-    style={{ display: "none" }}
-    onChange={handleFileChange}
-/>
-                    <button className="btn btn-primary" onClick={() => document.getElementById("fileUpload").click()} >
-                        <i className="bi bi-upload me-2"></i> Upload New File
-                    </button>
-
+            <div className="card shadow-sm border-0 mt-4">
+                <div className="card-body border-bottom">
+                    <div className="d-flex justify-content-between align-items-center">
+                        <h5 className="mb-0 fw-bold">
+                            Files {filter !== "all" && <span className="badge bg-info ms-2 text-dark">{filter}</span>}
+                        </h5>
+                        <button className="btn btn-primary shadow-sm px-4">
+                            <i className="bi bi-upload me-2"></i>
+                            Upload
+                        </button>
+                    </div>
                 </div>
+
                 <div className="list-group list-group-flush">
                     {filtered.length > 0 ? (
                         filtered.map((doc, index) => (
@@ -135,7 +127,7 @@ function Document() {
                     ) : (
                         <div className="text-center py-5 text-muted">No {filter} files found.</div>
                     )}
-                    
+
                 </div>
             </div>
         </div>
