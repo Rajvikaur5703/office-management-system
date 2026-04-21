@@ -26,38 +26,56 @@ function Attendance() {
 
 
   const handlePin = async () => {
-    console.log("Button clicked"); // debug
     if (pin === "2026") {
       const now = new Date();
-
       const time = now.toLocaleTimeString([], {
         hour: '2-digit',
         minute: '2-digit'
       });
 
       try {
-        const user = JSON.parse(localStorage.getItem("user")); // dynamic user
+        const userData = localStorage.getItem("user");
+        if (!userData) {
+          alert("Session expired. Please login again.");
+          return;
+        }
+
+        const user = JSON.parse(userData);
+
+        // Use BOTH _id and id to be safe
+        const userId = user._id || user.id;
+
+        if (!userId) {
+          alert("User ID not found. Check console for user object structure.");
+          console.log("User object from storage:", user);
+          return;
+        }
+
         const res = await axios.post(`${API_BASE_URL}/api/attendance/checkin`, {
-          userId: user._id,
+          userId: userId,
           name: user.name,
           date: today,
           checkIn: time
         });
 
+        // Update state
         sethistory([res.data, ...history]);
         setStatus("Present");
         setCheckInTime(time);
         setCheckInDate(now);
 
+        // Reset and close
         setshowpopup(false);
         setpin("");
+        alert("Check-in Successful!"); // Confirmation
 
       } catch (err) {
-        console.log(err);
+        console.error("Check-in Error:", err);
+        alert(`Server Error: ${err.response?.data?.message || err.message}`);
       }
 
     } else if (!pin) {
-      alert("Enter PIN");
+      alert("Please enter your PIN");
     } else {
       alert("Invalid PIN");
     }
@@ -197,6 +215,7 @@ function Attendance() {
                   className="form-control mb-3"
                   value={pin}
                   onChange={(e) => setpin(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handlePin()}
                   placeholder="Enter your PIN"
                 />
 
