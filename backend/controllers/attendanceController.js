@@ -7,14 +7,16 @@ const getToday = () => new Date().toISOString().split("T")[0];
 // Check In
 const checkIn = async (req, res) => {
     try {
-        const { employeeId } = req.body;
+        // CHANGE THIS: Match the key 'employee' from your frontend
+        const { employee } = req.body; 
         const today = getToday();
 
-        const exists = await Attendance.findOne({ employee: employeeId, date: today });
+        // Use 'employee' here as well
+        const exists = await Attendance.findOne({ employee: employee, date: today });
         if (exists) return res.status(400).json({ message: "Already checked in" });
 
         const record = await Attendance.create({
-            employee: employeeId,
+            employee: employee, // Changed from employeeId
             date: today,
             checkIn: new Date().toLocaleTimeString(),
             status: "Present",
@@ -29,10 +31,11 @@ const checkIn = async (req, res) => {
 // Check Out
 const checkOut = async (req, res) => {
     try {
-        const { employeeId } = req.body;
+        // CHANGE THIS: Match the key 'employee' from your frontend
+        const { employee } = req.body; 
         const today = getToday();
 
-        const record = await Attendance.findOne({ employee: employeeId, date: today });
+        const record = await Attendance.findOne({ employee: employee, date: today });
         if (!record) return res.status(400).json({ message: "Check-in first" });
 
         record.checkOut = new Date().toLocaleTimeString();
