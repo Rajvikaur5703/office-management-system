@@ -12,6 +12,8 @@ function Tasks() {
 
   // Try to get ID first, fall back to name if that's how your API is set up
   const employeeIdentifier = user?._id || user?.id || user?.name;
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const fetchTasks = useCallback(async () => {
     if (!employeeIdentifier) {
@@ -22,7 +24,7 @@ function Tasks() {
     try {
       setLoading(true);
       const res = await axios.get(
-        `http://localhost:5000/api/tasks/employee/${employeeIdentifier}`,
+        `${API_BASE_URL}/api/tasks/employee/${employeeIdentifier}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setTasks(res.data);
@@ -40,7 +42,7 @@ function Tasks() {
   const updateStatus = async (taskId, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/tasks/update-status/${taskId}`,
+        `${API_BASE_URL}/api/tasks/update-status/${taskId}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

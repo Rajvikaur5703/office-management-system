@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function AdminEmployee() {
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -31,7 +34,7 @@ function AdminEmployee() {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/emp", config);
+      const res = await axios.get(`${API_BASE_URL}/api/emp`, config);
       setEmployees(res.data);
     } catch (err) {
       console.error("Employee fetch error:", err);
@@ -40,7 +43,7 @@ function AdminEmployee() {
 
   const fetchDepartments = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/departments", config);
+      const res = await axios.get(`${API_BASE_URL}/api/departments`, config);
       setDepartments(res.data);
       if (res.data.length > 0) setDept(res.data[0]._id);
     } catch (err) {
@@ -73,10 +76,10 @@ function AdminEmployee() {
       };
 
       if (editId) {
-        await axios.put(`http://localhost:5000/api/emp/${editId}`, data, config);
+        await axios.put(`${API_BASE_URL}/api/emp/${editId}`, data, config);
         setMsg("Employee updated successfully! ✅");
       } else {
-        await axios.post("http://localhost:5000/api/emp", data, config);
+        await axios.post(`${API_BASE_URL}/api/emp`, data, config);
         setMsg("Employee created successfully! ✅");
       }
 
@@ -103,7 +106,7 @@ function AdminEmployee() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/emp/${id}`, config);
+        await axios.delete(`${API_BASE_URL}/api/emp/${id}`, config);
         setMsg("Employee deleted successfully");
         fetchEmployees();
       } catch (err) {

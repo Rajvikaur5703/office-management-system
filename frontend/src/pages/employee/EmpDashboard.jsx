@@ -4,6 +4,9 @@ import axios from "axios";
 function EmpDashboard() {
   const [empName, setEmpName] = useState("Employee");
 
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const userString = localStorage.getItem("user");
 
@@ -22,7 +25,7 @@ function EmpDashboard() {
 
   const fetchUserProfile = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/emp/me", {
+      const res = await axios.get(`${API_BASE_URL}/api/emp/me`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUserName(res.data.name);

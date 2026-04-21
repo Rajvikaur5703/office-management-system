@@ -4,6 +4,9 @@ import axios from "axios";
 function Leave() {
   const [leaves, setLeaves] = useState([]);
 
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
   const user = JSON.parse(localStorage.getItem("user"));
   const [formData, setFormData] = useState({
     name: user?.email || "",
@@ -15,7 +18,7 @@ function Leave() {
   });
 
   const fetchLeaves = async () => {
-    const res = await axios.get(`http://localhost:5000/api/leave/${user.email}`);
+    const res = await axios.get(`${API_BASE_URL}/api/leave/${user.email}`);
     setLeaves(res.data);
   };
 
@@ -33,7 +36,7 @@ function Leave() {
       console.log("Submitting:", formData);
 
       const res = await axios.post(
-        "http://localhost:5000/api/leave/apply",
+        `${API_BASE_URL}/api/leave/apply`,
         formData
       );
 

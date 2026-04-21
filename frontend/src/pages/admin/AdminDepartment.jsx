@@ -9,13 +9,15 @@ const AdminDepartment = () => {
   const [editId, setEditId] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const token = localStorage.getItem("token");
 
   // ✅ Fetch Departments
   const fetchDepartments = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/departments', {
+      const res = await axios.get(`${API_BASE_URL}/api/departments`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDepartments(res.data);
@@ -31,7 +33,7 @@ const AdminDepartment = () => {
       const config = {
         headers: { Authorization: `Bearer ${token}` }
       };
-      const response = await axios.get('http://localhost:5000/api/emp', config);
+      const response = await axios.get(`${API_BASE_URL}/api/emp`, config);
       setEmployees(response.data);
     } catch (error) {
       console.error("Employee fetch failed:", error);
@@ -71,14 +73,14 @@ const AdminDepartment = () => {
     try {
       if (editId) {
         await axios.put(
-          `http://localhost:5000/api/departments/${editId}`,
+          `${API_BASE_URL}/api/departments/${editId}`,
           { name: deptName, description },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setMessage("Department updated!");
       } else {
         await axios.post(
-          'http://localhost:5000/api/departments',
+          `${API_BASE_URL}/api/departments`,
           { name: deptName, description },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -114,7 +116,7 @@ const AdminDepartment = () => {
   const handleDelete = async (id, name) => {
     if (window.confirm(`Delete "${name}"?`)) {
       try {
-        await axios.delete(`http://localhost:5000/api/departments/${id}`, {
+        await axios.delete(`${API_BASE_URL}/api/departments/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setMessage("Department deleted!");

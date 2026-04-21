@@ -6,10 +6,13 @@ function AdminAttendance() {
   const [attendanceData, setAttendanceData] = useState([]);
   const [editAttendance, seteditAttendance] = useState(null);
 
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
   const token = localStorage.getItem("token");
   const fetchAttendance = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/attendance");
+      const res = await axios.get(`${API_BASE_URL}/api/attendance`);
       setAttendanceData(res.data);
     } catch (err) {
       console.log(err);
@@ -23,7 +26,7 @@ function AdminAttendance() {
   const updateStatus = async (attendanceId, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/attendance/update-status/${attendanceId}`,
+        `${API_BASE_URL}/api/attendance/update-status/${attendanceId}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

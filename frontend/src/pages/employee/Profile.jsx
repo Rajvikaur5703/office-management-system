@@ -13,6 +13,9 @@ function Profile() {
   });
   const [loading, setLoading] = useState(true);
 
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("token");
@@ -22,7 +25,7 @@ function Profile() {
       }
 
       try {
-        const res = await axios.get("http://localhost:5000/api/emp/me", {
+        const res = await axios.get(`${API_BASE_URL}/api/emp/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -60,7 +63,7 @@ function Profile() {
       }
 
       // 2. CRITICAL: Pass 'dataToSend' here, NOT 'profile'
-      const res = await axios.put(`http://localhost:5000/api/emp/${profile.id}`, dataToSend, {
+      const res = await axios.put(`${API_BASE_URL}/api/emp/${profile.id}`, dataToSend, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

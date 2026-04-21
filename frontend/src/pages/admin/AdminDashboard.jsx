@@ -12,6 +12,9 @@ function AdminDashboard() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     const userString = localStorage.getItem("user");
 
@@ -33,7 +36,7 @@ function AdminDashboard() {
     const fetchData = async () => {
       try {
         const headers = { Authorization: `Bearer ${token}` };
-        const statsRes = await fetch("http://localhost:5000/api/admin/stats", { headers });
+        const statsRes = await fetch(`${API_BASE_URL}/api/admin/stats`, { headers });
         const sData = await statsRes.json();
 
         setStats([

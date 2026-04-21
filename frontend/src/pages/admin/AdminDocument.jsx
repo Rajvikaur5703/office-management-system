@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 
 function AdminDocuments() {
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const [filter, setFilter] = useState("all");
 
   const documents = [

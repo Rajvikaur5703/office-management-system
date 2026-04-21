@@ -3,9 +3,11 @@ import axios from "axios";
 
 function AdminLeave() {
   const [leaves, setLeaves] = useState([]);
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const fetchLeaves = async () => {
-    const res = await axios.get("http://localhost:5000/api/leave");
+    const res = await axios.get(`${API_BASE_URL}/api/leave`);
     setLeaves(res.data);
   };
 
@@ -14,7 +16,7 @@ function AdminLeave() {
   }, []);
 
   const updateStatus = async (id, newStatus) => {
-    await axios.put(`http://localhost:5000/api/leave/${id}`, {
+    await axios.put(`${API_BASE_URL}/api/leave/${id}`, {
       status: newStatus,
     });
 

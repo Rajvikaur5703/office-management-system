@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function AdminTasks() {
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -29,7 +32,7 @@ function AdminTasks() {
 
   const getTasks = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/tasks/my-tasks");
+      const res = await axios.get(`${API_BASE_URL}/api/tasks/my-tasks`);
       setTasks(res.data);
     } catch (err) {
       console.log(err);
@@ -38,7 +41,7 @@ function AdminTasks() {
 
   const getEmployees = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/emp", {
+      const res = await axios.get(`${API_BASE_URL}/api/emp`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setEmployees(res.data);
@@ -60,10 +63,10 @@ function AdminTasks() {
       };
 
       if (editId) {
-        await axios.put(`http://localhost:5000/api/tasks/update-task/${editId}`, data);
+        await axios.put(`${API_BASE_URL}/api/tasks/update-task/${editId}`, data);
         setMsg("Task updated!");
       } else {
-        await axios.post("http://localhost:5000/api/tasks/add", data);
+        await axios.post(`${API_BASE_URL}/api/tasks/add`, data);
         setMsg("Task added!");
       }
 
@@ -93,7 +96,7 @@ function AdminTasks() {
   const deleteTask = async (id, title) => {
     if (window.confirm(`Delete "${title}"?`)) {
       try {
-        await axios.delete(`http://localhost:5000/api/tasks/delete/${id}`);
+        await axios.delete(`${API_BASE_URL}/api/tasks/delete/${id}`);
         setMsg("Task deleted!");
         getTasks();
       } catch (err) {
@@ -106,7 +109,7 @@ function AdminTasks() {
     const newStatus = currentStatus === "pending" ? "completed" : "pending";
     const taskToUpdate = tasks.find(t => t._id === id); // Get the rest of the task data
     try {
-      await axios.put(`http://localhost:5000/api/tasks/update-status/${id}`, { status: newStatus });
+      await axios.put(`${API_BASE_URL}/api/tasks/update-status/${id}`, { status: newStatus });
       getTasks();
       setMsg(`Task marked as ${newStatus}!`);
     } catch (err) {

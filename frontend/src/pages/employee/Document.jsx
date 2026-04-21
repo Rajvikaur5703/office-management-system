@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 function Document() {
+    // Use the environment variable from your Render settings
+    const API_BASE_URL = import.meta.env.VITE_API_URL;
     const [filter, setFilter] = useState("all");
     const [documents, setDocuments] = useState([]);
 
@@ -8,7 +10,7 @@ function Document() {
     useEffect(() => {
         const fetchDocs = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/documents");
+                const res = await fetch(`${API_BASE_URL}/api/documents`);
                 const data = await res.json();
                 setDocuments(data);
             } catch (err) {
@@ -32,7 +34,7 @@ function Document() {
         formData.append("file", file);
 
         try {
-            const res = await fetch("http://localhost:5000/api/documents/upload", {
+            const res = await fetch(`${API_BASE_URL}/api/documents/upload`, {
                 method: "POST",
                 body: formData
             });

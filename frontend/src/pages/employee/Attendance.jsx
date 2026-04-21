@@ -9,6 +9,8 @@ function Attendance() {
   const [history, sethistory] = useState([]);
   const [checkInDate, setCheckInDate] = useState(null);
 
+  // Use the environment variable from your Render settings
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   // Get today's date formatted nicely
   const today = new Date().toLocaleDateString('en-GB', {
@@ -35,7 +37,7 @@ function Attendance() {
 
       try {
         const user = JSON.parse(localStorage.getItem("user")); // dynamic user
-        const res = await axios.post("http://localhost:5000/api/attendance/checkin", {
+        const res = await axios.post(`${API_BASE_URL}/api/attendance/checkin`, {
           userId: user._id,
           name: user.name,
           date: today,
@@ -73,7 +75,7 @@ function Attendance() {
 
       try {
         const user = JSON.parse(userData);
-        const res = await axios.get(`http://localhost:5000/api/attendance/${user._id}`);
+        const res = await axios.get(`${API_BASE_URL}/api/attendance/${user._id}`);
 
         // Force the data to be an array so .map() doesn't break
         const data = Array.isArray(res.data) ? res.data : [];
@@ -125,7 +127,7 @@ function Attendance() {
       const latestRecord = history[0];
 
       const res = await axios.put(
-        `http://localhost:5000/api/attendance/checkout/${latestRecord._id}`,
+        `${API_BASE_URL}/api/attendance/checkout/${latestRecord._id}`,
         {
           checkOut: checkoutTime,
           hours: totalHours
