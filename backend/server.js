@@ -24,6 +24,7 @@ app.use(cors({
     credentials: true
 })); // 1. Allow React to talk to Node
 app.use(express.json());  // 2. Allow Node to read the JSON data you send
+app.use(express.urlencoded({ extended: true }));
 
 // serve uploaded files
 app.use("/uploads", express.static("uploads"));    //global middleware, meaning it should run before all routes.
