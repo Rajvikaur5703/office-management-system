@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function AdminEmployee() {
-  // Use the environment variable from your Render settings
   const API_BASE_URL = import.meta.env.VITE_API_URL;
-
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -229,7 +227,7 @@ function AdminEmployee() {
                 filtered.map((emp, i) => (
                   <tr key={emp._id}>
                     <td className="ps-3 text-muted">{i + 1}</td>
-                    <td><span className="badge bg-light text-primary border">{emp.employeeId}</span></td>
+                    <td><span className="badge bg-light text-black">{emp._id}</span></td>
                     <td className="fw-bold">{emp.name}</td>
                     <td>{emp.email}</td>
                     <td><span className="badge bg-secondary opacity-75">{emp.department?.name || "N/A"}</span></td>

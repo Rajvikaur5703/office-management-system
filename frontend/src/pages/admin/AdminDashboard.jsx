@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AdminDashboardCharts from "../../components/AdminDashboardCharts";
 
 function AdminDashboard() {
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,8 +13,11 @@ function AdminDashboard() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-  // Use the environment variable from your Render settings
-  const API_BASE_URL = import.meta.env.VITE_API_URL;
+  // Navigation handlers
+  const handleCardClick = (route) => {
+    navigate(route);
+  };
+
 
   useEffect(() => {
     const userString = localStorage.getItem("user");
@@ -40,10 +44,10 @@ function AdminDashboard() {
         const sData = await statsRes.json();
 
         setStats([
-          { title: "Total Employees", value: sData.totalEmployees || 0, icon: "👥", color: "#0d6efd" },
-          { title: "Total Tasks", value: sData.totalTasks || 0, icon: "📝", color: "#198754" },
-          { title: "Present Today", value: sData.presentToday || 0, icon: "✅", color: "#0dcaf0" },
-          { title: "Pending Tasks", value: sData.pendingTasks || 0, icon: "⏳", color: "#ffc107" },
+          { title: "Total Employees", value: sData.totalEmployees || 0, icon: "👥", color: "#0d6efd", route: '/admin/employee' },
+          { title: "Total Tasks", value: sData.totalTasks || 0, icon: "📝", color: "#198754", route: '/admin/tasks' },
+          { title: "Present Today", value: sData.presentToday || 0, icon: "✅", color: "#0dcaf0", route: '/admin/attendance' },
+          { title: "Pending Tasks", value: sData.pendingTasks || 0, icon: "⏳", color: "#ffc107", route: '/admin/tasks' },
         ]);
 
         setChartData({
@@ -73,11 +77,18 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Top 4 Stats Row */}
+      {/* Top 4 Stats Row - Clickable Cards*/}
       <div className="row g-3 mb-4">
         {stats.map((s, i) => (
           <div key={i} className="col-md-3">
-            <div className="card border-0 shadow-sm h-100 p-3" style={{ borderTop: `4px solid ${s.color}` }}>
+            <div
+              className="card border-0 shadow-sm h-100 p-3"
+              style={{
+                borderTop: `4px solid ${s.color}`, cursor: 'pointer',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+              }}
+              onClick={() => handleCardClick(s.route)}
+            >
               <div className="d-flex align-items-center justify-content-between">
                 <div>
                   <div className="text-muted small fw-bold text-uppercase">{s.title}</div>

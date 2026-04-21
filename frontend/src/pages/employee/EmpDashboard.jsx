@@ -1,11 +1,44 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function EmpDashboard() {
-  const [empName, setEmpName] = useState("Employee");
-
-  // Use the environment variable from your Render settings
   const API_BASE_URL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
+  const [empName, setEmpName] = useState("Employee");
+  const [stats, setStats] = useState({
+    tasks: 0,
+    attendance: 0,
+    hoursWorked: "0h",
+    completedTasks: 0  // Changed from streak to completedTasks
+  });
+
+  const fetchStats = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const userId = user._id || user.id;
+
+      const res = await axios.get(
+        `${API_BASE_URL}/api/emp/stats/${userId}`
+      );
+
+      console.log("Stats response:", res.data);
+
+      setStats({
+        tasks: res.data.totalTasks || 0,
+        attendance: res.data.attendanceDays || 0,
+        hoursWorked: res.data.totalHours || "0h",
+        completedTasks: res.data.completedTasks || 0  // Changed from streak
+      });
+
+    } catch (err) {
+      console.error("Error fetching stats:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   useEffect(() => {
     const userString = localStorage.getItem("user");
@@ -13,7 +46,6 @@ function EmpDashboard() {
     if (userString) {
       try {
         const userData = JSON.parse(userString);
-        // 3. Update state if the name exists in the stored object
         if (userData && userData.name) {
           setEmpName(userData.name);
         }
@@ -23,28 +55,21 @@ function EmpDashboard() {
     }
   }, []);
 
-  const fetchUserProfile = async () => {
-    try {
-      const res = await axios.get(`${API_BASE_URL}/api/emp/me`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUserName(res.data.name);
-    } catch (err) {
-      console.error("Error fetching user profile:", err);
-    }
+  // Navigation handlers
+  const handleCardClick = (route) => {
+    navigate(route);
   };
 
-
-  const stats = [
-    { title: 'Total Tasks', value: '0', icon: 'bi-list-check', color: 'primary' },
-    { title: 'Attendance', value: '0', icon: 'bi-check-circle', color: 'success' },
-    { title: 'Active Projects', value: '0', icon: 'bi-briefcase', color: 'warning' },
-    { title: 'Meetings', value: '0', icon: 'bi-clock', color: 'info' }
+  const statsData = [
+    { title: 'Total Tasks', value: stats.tasks, icon: 'bi-list-check', color: 'primary', suffix: '', route: '/employee/tasks' },
+    { title: 'Attendance', value: stats.attendance, icon: 'bi-graph-up', color: 'warning', suffix: '%', route: '/employee/attendance' },
+    { title: 'Hours Worked', value: stats.hoursWorked, icon: 'bi-clock-history', color: 'info', suffix: '', route: '/employee/hours' },
+    { title: 'Completed Tasks', value: stats.completedTasks, icon: 'bi-check2-circle', color: 'success', suffix: '', route: '/employee/tasks' }  // Changed
   ];
 
   return (
     <div className="container-fluid py-4">
-      {/* --- NEW WELCOME SECTION --- */}
+      {/* Welcome Section */}
       <div className="row mb-4">
         <div className="col-12">
           <h2 className="fw-bold text-dark">Welcome, {empName}!</h2>
@@ -77,9 +102,13 @@ function EmpDashboard() {
 
       {/* Stats Grid */}
       <div className="row g-4">
-        {stats.map((stat, index) => (
+        {statsData.map((stat, index) => (
           <div key={index} className="col-12 col-sm-6 col-xl-3">
-            <div className="card border-0 shadow-sm h-100">
+            <div
+              className="card border-0 shadow-sm h-100 hover-lift"
+              style={{ cursor: 'pointer' }}
+              onClick={() => handleCardClick(stat.route)}
+            >
               <div className="card-body">
                 <div className="d-flex align-items-center mb-3">
                   <div className={`rounded-3 p-3 bg-${stat.color}-subtle text-${stat.color} me-3`}>
@@ -87,26 +116,30 @@ function EmpDashboard() {
                   </div>
                   <div>
                     <p className="text-muted small mb-0 fw-bold text-uppercase">{stat.title}</p>
-                    <h3 className="fw-bold mb-0">{stat.value}</h3>
+                    <h3 className="fw-bold mb-0">
+                      {stat.value}{stat.suffix}
+                    </h3>
                   </div>
                 </div>
-                {/* <div className="d-flex align-items-center">
-                  <span className="badge bg-success-subtle text-success border border-success-subtle me-2">
-                    {stat.change}
-                  </span>
-                  <span className="text-muted small">vs last month</span>
-                </div> */}
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Placeholder for Recent Tasks or News */}
+      {/* Recent Activity Section */}
       <div className="row mt-5">
         <div className="col-12">
-          <div className="p-5 border-2 border-dashed border-secondary rounded-4 bg-light text-center">
-            <p className="text-muted mb-0">More dashboard widgets coming soon...</p>
+          <div className="card border-0 shadow-sm">
+            <div className="card-header bg-white py-3">
+              <h5 className="mb-0 fw-bold">Recent Activity</h5>
+            </div>
+            <div className="card-body">
+              <div className="text-center py-4 text-muted">
+                <i className="bi bi-calendar-check fs-1"></i>
+                <p className="mt-2 mb-0">Your recent activities will appear here</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

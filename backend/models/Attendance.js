@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const attendanceSchema = new mongoose.Schema({
   employee: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",   // ✅ FIXED: use User instead of Employee
+    ref: "User",
     required: true
   },
 
@@ -18,6 +18,11 @@ const attendanceSchema = new mongoose.Schema({
   },
 
   checkOut: {
+    type: String,
+    default: null
+  },
+
+  hours: {
     type: String,
     default: null
   },

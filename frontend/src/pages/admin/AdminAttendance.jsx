@@ -5,8 +5,6 @@ function AdminAttendance() {
   // Simple data array - easy to manage or fetch from an API later
   const [attendanceData, setAttendanceData] = useState([]);
   const [editAttendance, seteditAttendance] = useState(null);
-
-  // Use the environment variable from your Render settings
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const token = localStorage.getItem("token");
@@ -64,7 +62,7 @@ function AdminAttendance() {
                 {attendanceData.map((emp) => (
                   <tr key={emp._id} className="align-middle">
                     <td>{emp._id}</td>
-                    <td>{emp.name}</td>
+                    <td>{emp.employee?.name}</td>
                     <td>
                       {/* Using dynamic Bootstrap Badges for status colors */}
                       <span className={`badge rounded-pill ${emp.status === "Present" ? "bg-success-subtle text-success" :
@@ -91,9 +89,6 @@ function AdminAttendance() {
                           <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => seteditAttendance(emp._id)}>
                             Edit
                           </button>
-                          // <button className="btn btn-sm btn-outline-primary px-3" onClick={() => setEditingTaskId(task._id)}>
-                          //   Update
-                          // </button>
                         )}
 
                     </td>
