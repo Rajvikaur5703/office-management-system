@@ -2,9 +2,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
 function Tasks() {
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const [tasks, setTasks] = useState([]);
   const [editingTaskId, setEditingTaskId] = useState(null);
-  const [loading, setLoading] = useState(true); // Added missing loading state
+  const [loading, setLoading] = useState(true);
+  const [filter, setfilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   // Get Auth data
   const token = localStorage.getItem("token");
@@ -12,8 +15,6 @@ function Tasks() {
 
   // Try to get ID first, fall back to name if that's how your API is set up
   const employeeIdentifier = user?._id || user?.id || user?.name;
-  // Use the environment variable from your Render settings
-  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const fetchTasks = useCallback(async () => {
     if (!employeeIdentifier) {
@@ -52,6 +53,14 @@ function Tasks() {
     }
   };
 
+  const filteredTasks = tasks.filter(task => {
+    const matchesSearch =
+      task.title?.toLowerCase().includes(search.toLowerCase()) ||
+      task.assigned?.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = filter === "all" || task.status === filter;
+    return matchesSearch && matchesStatus;
+  });
+
   // Stats Logic
   const totalTasks = tasks.length;
   const pendingTasks = tasks.filter(t => t.status === "pending").length;
@@ -59,10 +68,10 @@ function Tasks() {
   const completedTasks = tasks.filter(t => t.status === "completed").length;
 
   const stats = [
-    { title: 'Total Tasks', value: totalTasks, icon: 'bi-list-task', color: 'primary' },
-    { title: 'Pending', value: pendingTasks, icon: 'bi-clock-history', color: 'danger' },
-    { title: 'In Progress', value: inProgressTasks, icon: 'bi-gear-wide-connected', color: 'warning' },
-    { title: 'Completed', value: completedTasks, icon: 'bi-check2-circle', color: 'success' }
+    { title: 'Total Tasks', value: totalTasks, icon: 'bi-list-task', color: 'primary', filter: 'all' },
+    { title: 'Pending', value: pendingTasks, icon: 'bi-clock-history', color: 'danger', filter: 'pending' },
+    { title: 'In Progress', value: inProgressTasks, icon: 'bi-gear-wide-connected', color: 'warning', filter: 'in-progress' },
+    { title: 'Completed', value: completedTasks, icon: 'bi-check2-circle', color: 'success', filter: 'completed' }
   ];
 
   const getPriorityClass = (priority) => {
@@ -78,8 +87,8 @@ function Tasks() {
       {/* Stats Cards */}
       <div className="row g-3 mb-5">
         {stats.map((stat, index) => (
-          <div key={index} className="col-12 col-sm-6 col-xl-3">
-            <div className="card border-0 shadow-sm">
+          <div key={index} className="col-12 col-sm-6 col-xl-3" style={{ cursor: 'pointer' }} onClick={() => setfilter(stat.filter)}>
+            <div className={`card border-0 shadow-sm ${filter === stat.filter ? 'ring-2 border-primary' : ''}`} style={filter === stat.filter ? { border: '2px solid' } : {}}>
               <div className="card-body d-flex align-items-center">
                 <div className={`rounded-circle p-3 bg-${stat.color} bg-opacity-10 text-${stat.color} me-3`}>
                   <i className={`bi ${stat.icon} fs-4`}></i>
@@ -118,8 +127,8 @@ function Tasks() {
                     <div className="mt-2">Loading tasks...</div>
                   </td>
                 </tr>
-              ) : tasks.length > 0 ? (
-                tasks.map((task) => (
+              ) : filteredTasks.length > 0 ? (
+                filteredTasks.map((task) => (
                   <tr key={task._id}>
                     <td className="ps-4 fw-bold">{task.title}</td>
                     <td>{task.dueDate ? task.dueDate.split("T")[0] : "No Deadline"}</td>

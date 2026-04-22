@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function AdminTasks() {
-  // Use the environment variable from your Render settings
   const API_BASE_URL = import.meta.env.VITE_API_URL;
-
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -12,6 +10,7 @@ function AdminTasks() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
+  const [filter, setfilter] = useState("all");
 
   const [title, setTitle] = useState("");
   const [assigned, setAssigned] = useState("");
@@ -126,10 +125,16 @@ function AdminTasks() {
     setDueDate("");
   };
 
-  const filteredTasks = tasks.filter(task =>
-    task.title?.toLowerCase().includes(search.toLowerCase()) ||
-    task.assigned?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredTasks = tasks.filter(task => {
+    // Check Search
+    const matchesSearch =
+      task.title?.toLowerCase().includes(search.toLowerCase()) ||
+      task.assigned?.toLowerCase().includes(search.toLowerCase());
+
+    // Check Status Filter
+    const matchesStatus = filter === "all" || task.status === filter;
+    return matchesSearch && matchesStatus;
+  });
 
   const totalTasks = tasks.length;
   const pendingTasks = tasks.filter(t => t.status === "pending").length;
@@ -137,10 +142,10 @@ function AdminTasks() {
   const completedTasks = tasks.filter(t => t.status === "completed").length;
 
   const stats = [
-    { title: 'Total Tasks', value: totalTasks, icon: 'bi-list-task', color: 'primary' },
-    { title: 'Pending', value: pendingTasks, icon: 'bi-clock-history', color: 'danger' },
-    { title: 'In Progress', value: inProgressTasks, icon: 'bi-gear-wide-connected', color: 'warning' },
-    { title: 'Completed', value: completedTasks, icon: 'bi-check2-circle', color: 'success' }
+    { title: 'Total Tasks', value: totalTasks, icon: 'bi-list-task', color: 'primary', filter: 'all' },
+    { title: 'Pending', value: pendingTasks, icon: 'bi-clock-history', color: 'danger', filter: 'pending' },
+    { title: 'In Progress', value: inProgressTasks, icon: 'bi-gear-wide-connected', color: 'warning', filter: 'in-progress' },
+    { title: 'Completed', value: completedTasks, icon: 'bi-check2-circle', color: 'success', filter: 'completed' }
   ];
 
   return (
@@ -165,8 +170,8 @@ function AdminTasks() {
       {/* Stats Cards */}
       <div className="row g-3 mb-5">
         {stats.map((stat, index) => (
-          <div key={index} className="col-12 col-sm-6 col-xl-3">
-            <div className="card border-0 shadow-sm">
+          <div key={index} className="col-12 col-sm-6 col-xl-3" style={{ cursor: 'pointer' }} onClick={() => setfilter(stat.filter)}>
+            <div className={`card border-0 shadow-sm ${filter === stat.filter ? 'ring-2 border-primary' : ''}`} style={filter === stat.filter ? { border: '2px solid' } : {}}>
               <div className="card-body d-flex align-items-center">
                 <div className={`rounded-circle p-3 bg-${stat.color} bg-opacity-10 text-${stat.color} me-3`}>
                   <i className={`bi ${stat.icon} fs-4`}></i>
@@ -187,7 +192,7 @@ function AdminTasks() {
           <input
             type="text"
             className="form-control"
-            placeholder="Search by task or employee..."
+            placeholder="Search by task title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -330,46 +335,6 @@ function AdminTasks() {
                 </tr>
               )}
             </tbody>
-            {/* <tbody>
-              {filteredTasks.length > 0 ? (
-                filteredTasks.map((task, idx) => (
-                  <tr key={task._id}>
-                    <td>{idx + 1}</td>
-                    <td>{task.title}</td>
-                    <td>{task.assigned}</td>
-                    <td>
-                      <button
-                        className={`btn btn-sm ${task.status === "completed" ? "btn-success" : "btn-warning"}`}
-                        onClick={() => updateStatus(task._id, task.status)}
-                      >
-                        {task.status || "pending"}
-                      </button>
-                    </td>
-                    <td>{task.dueDate}</td>
-                    <td>
-                      <button
-                        className="btn btn-sm btn-warning me-1"
-                        onClick={() => editTask(task)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => deleteTask(task._id, task.title)}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="text-center py-4">
-                    No tasks found
-                  </td>
-                </tr>
-              )}
-            </tbody> */}
           </table>
         </div>
       </div>

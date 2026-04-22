@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function Leave() {
-  const [leaves, setLeaves] = useState([]);
-
-  // Use the environment variable from your Render settings
   const API_BASE_URL = import.meta.env.VITE_API_URL;
-
+  const [leaves, setLeaves] = useState([]);
+  const today = new Date().toISOString().split('T')[0];
   const user = JSON.parse(localStorage.getItem("user"));
   const [formData, setFormData] = useState({
     name: user?.email || "",
@@ -32,17 +30,28 @@ function Leave() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation Logic
+    if (formData.fromdate < today) {
+      alert("From Date cannot be in the past.");
+      return;
+    }
+    if (formData.todate < formData.fromdate) {
+      alert("To Date cannot be before the From Date.");
+      return;
+    }
+
     try {
-      console.log("Submitting:", formData);
-
-      const res = await axios.post(
-        `${API_BASE_URL}/api/leave/apply`,
-        formData
-      );
-
-      console.log("Saved:", res.data);
-
+      const res = await axios.post(`${API_BASE_URL}/api/leave/apply`, formData);
       fetchLeaves();
+      // Optional: Reset form after success
+      setFormData({
+        ...formData,
+        type: "",
+        fromdate: "",
+        todate: "",
+        description: ""
+      });
     } catch (err) {
       console.error("Error:", err.response?.data || err.message);
     }
@@ -67,18 +76,18 @@ function Leave() {
                     <option value="">Select Type</option>
                     <option value="Sick Leave">Sick Leave</option>
                     <option value="Casual Leave">Casual Leave</option>
-                    <option value="Personal">Personal</option>
+                    <option value="Personal">Personal Leave</option>
                   </select>
                 </div>
 
                 <div className="row">
                   <div className="col-6 mb-3">
                     <label className="form-label small fw-bold">From</label>
-                    <input type="date" name="fromdate" className=" form-control" value={formData.fromdate} onChange={handleChange} required />
+                    <input type="date" name="fromdate" className=" form-control" value={formData.fromdate} onChange={handleChange} min={today} required />
                   </div>
                   <div className="col-6 mb-3">
                     <label className="form-label small fw-bold">To</label>
-                    <input type="date" name="todate" className="form-control" value={formData.todate} onChange={handleChange} required />
+                    <input type="date" name="todate" className="form-control" value={formData.todate} onChange={handleChange} min={formData.fromdate} required />
                   </div>
                 </div>
 
