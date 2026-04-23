@@ -19,7 +19,7 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors(); // 1. Allow React to talk to Node
+app.use(cors()); // 1. Allow React to talk to Node
 app.use(express.json());  // 2. Allow Node to read the JSON data you send
 
 // serve uploaded files
