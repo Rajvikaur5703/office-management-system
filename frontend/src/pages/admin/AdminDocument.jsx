@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-function Document() {
+function AdminDocument() {
     // Use the environment variable from your Render settings
     const API_BASE_URL = import.meta.env.VITE_API_URL;
     const [filter, setFilter] = useState("all");
@@ -136,4 +136,4 @@ function Document() {
     );
 }
 
-export default Document;
+export default AdminDocument;

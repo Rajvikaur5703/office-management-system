@@ -1,11 +1,19 @@
 const User = require('../models/User');
 const Task = require('../models/Task'); // make sure you have this model
 const Department = require('../models/Department');
+const Attendance = require('../models/Attendance');
 
 
 // 🔥 DASHBOARD STATS + CHART DATA
 exports.getAdminStats = async (req, res) => {
     try {
+        // 1. Get current date range (Start of today to end of today)
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
         // 🔹 Total Employees
         const totalEmployees = await User.countDocuments({ role: 'employee' });
 
@@ -16,7 +24,9 @@ exports.getAdminStats = async (req, res) => {
         const pendingTasks = await Task.countDocuments({ status: 'pending' });
 
         // 🔹 Present Today (dummy for now)
-        const presentToday = Math.floor(totalEmployees * 0.7); // temporary logic
+        const presentToday = await Attendance.countDocuments({
+            createdAt: { $gte: startOfDay, $lte: endOfDay }
+        });
 
         // 🔹 Employees per Department (for BAR chart)
         const employees = await User.find({ role: 'employee' }).populate('department');
