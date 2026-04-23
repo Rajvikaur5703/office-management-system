@@ -335,6 +335,46 @@ function AdminTasks() {
                 </tr>
               )}
             </tbody>
+            {/* <tbody>
+              {filteredTasks.length > 0 ? (
+                filteredTasks.map((task, idx) => (
+                  <tr key={task._id}>
+                    <td>{idx + 1}</td>
+                    <td>{task.title}</td>
+                    <td>{task.assigned}</td>
+                    <td>
+                      <button
+                        className={`btn btn-sm ${task.status === "completed" ? "btn-success" : "btn-warning"}`}
+                        onClick={() => updateStatus(task._id, task.status)}
+                      >
+                        {task.status || "pending"}
+                      </button>
+                    </td>
+                    <td>{task.dueDate}</td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-warning me-1"
+                        onClick={() => editTask(task)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => deleteTask(task._id, task.title)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center py-4">
+                    No tasks found
+                  </td>
+                </tr>
+              )}
+            </tbody> */}
           </table>
         </div>
       </div>

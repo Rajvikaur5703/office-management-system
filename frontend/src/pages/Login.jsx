@@ -2,12 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
-
-  // Use the environment variable from your Render settings
-  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   // Handle input changes
   const handleChange = (e) => {

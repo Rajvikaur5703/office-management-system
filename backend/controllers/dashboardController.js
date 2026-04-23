@@ -7,7 +7,6 @@ const Attendance = require('../models/Attendance');
 // 🔥 DASHBOARD STATS + CHART DATA
 exports.getAdminStats = async (req, res) => {
     try {
-        // 1. Get current date range (Start of today to end of today)
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
 

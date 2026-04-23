@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const AdminDepartment = () => {
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const [departments, setDepartments] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [deptName, setDeptName] = useState("");
@@ -9,8 +10,6 @@ const AdminDepartment = () => {
   const [editId, setEditId] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  // Use the environment variable from your Render settings
-  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const token = localStorage.getItem("token");
 

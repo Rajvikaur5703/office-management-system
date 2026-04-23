@@ -3,7 +3,6 @@ import axios from "axios";
 
 function AdminLeave() {
   const [leaves, setLeaves] = useState([]);
-  // Use the environment variable from your Render settings
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const fetchLeaves = async () => {

@@ -145,10 +145,10 @@ function AdminEmployee() {
       {/* SEARCH BAR */}
       <div className="mb-4">
         <div className="input-group shadow-sm">
-          <span className="input-group-text bg-white border-end-0 text-muted">🔍</span>
+          {/* <span className="input-group-text bg-white border-end-0 text-muted"></span> */}
           <input
             className="form-control border-start-0 ps-0"
-            placeholder="Search by name, email, or Employee ID..."
+            placeholder="🔍 Search by name, email, or Employee ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

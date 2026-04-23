@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 
 function AdminDocument() {
-    // Use the environment variable from your Render settings
     const API_BASE_URL = import.meta.env.VITE_API_URL;
     const [filter, setFilter] = useState("all");
     const [documents, setDocuments] = useState([]);
@@ -44,11 +43,16 @@ function AdminDocument() {
             if (res.ok) {
                 // Prepend the new document to the list so it appears at the top
                 setDocuments((prev) => [newDocFromServer, ...prev]);
-                alert("File uploaded and saved to DB!");
             }
         } catch (err) {
             console.error("Upload error:", err);
         }
+    };
+
+    const handleDownload = (doc) => {
+        // Extract just the filename from the "uploads/171...-file.pdf" path
+        const fileName = doc.path.split(/[\\/]/).pop();
+        window.location.href = `${API_BASE_URL}/api/documents/download/${fileName}`;
     };
 
     // Filter logic
@@ -97,31 +101,38 @@ function AdminDocument() {
             </div>
 
             {/* Files List */}
-            <div className="card shadow-sm border-0 mt-4">
+            <div className="card shadow-sm border-0">
                 <div className="card-body border-bottom">
                     <div className="d-flex justify-content-between align-items-center">
                         <h5 className="mb-0 fw-bold">
                             Files {filter !== "all" && <span className="badge bg-info ms-2 text-dark">{filter}</span>}
                         </h5>
-                        <button className="btn btn-primary shadow-sm px-4">
-                            <i className="bi bi-upload me-2"></i>
-                            Upload
+                        <input type="file" id="fileUpload" style={{ display: "none" }} onChange={handleFileChange} />
+                        <input type="file" id="fileUpload" accept=".pdf, .docx, .xlsx, .txt"
+                            style={{ display: "none" }} onChange={handleFileChange} />
+                        <button className="btn btn-primary shadow-sm px-4" onClick={() => document.getElementById("fileUpload").click()}>
+                            <i className="bi bi-upload me-2"></i> Upload
                         </button>
                     </div>
                 </div>
+
 
                 <div className="list-group list-group-flush">
                     {filtered.length > 0 ? (
                         filtered.map((doc, index) => (
                             <div key={index} className="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
                                 <div className="d-flex align-items-center">
-                                    <i className={`bi bi-file-earmark-${doc.type === 'excel' ? 'spreadsheet' : doc.type} fs-4 me-3 text-secondary`}></i>
+                                    <i className={`bi fs-4 me-3 text-secondary ${doc.type === 'pdf' ? 'bi-file-earmark-pdf' :
+                                            doc.type === 'excel' || doc.type === 'xlsx' ? 'bi-file-earmark-spreadsheet' :
+                                                doc.type === 'docx' || doc.type === 'doc' ? 'bi-file-earmark-word' :
+                                                    'bi-file-earmark'
+                                        }`}></i>
                                     <div>
                                         <div className="fw-bold">{doc.name}</div>
                                         <small className="text-muted">Uploaded on: {doc.date}</small>
                                     </div>
                                 </div>
-                                <button className="btn btn-sm btn-outline-primary">
+                                <button className="btn btn-sm btn-outline-primary" onClick={() => { handleDownload }}>
                                     <i className="bi bi-download"></i>
                                 </button>
                             </div>

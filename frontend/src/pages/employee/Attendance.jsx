@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function Attendance() {
-
   const API_BASE_URL = import.meta.env.VITE_API_URL;
-
   const [showpopup, setshowpopup] = useState(false);
   const [status, setStatus] = useState("Not Marked");
   const [pin, setpin] = useState("");

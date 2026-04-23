@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 function AdminAttendance() {
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   // Simple data array - easy to manage or fetch from an API later
   const [attendanceData, setAttendanceData] = useState([]);
   const [editAttendance, seteditAttendance] = useState(null);
-  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const token = localStorage.getItem("token");
   const fetchAttendance = async () => {
@@ -53,6 +53,7 @@ function AdminAttendance() {
                 <tr>
                   <th className="ps-4">ID</th>
                   <th>Name</th>
+                  <th>Date</th>
                   <th>Status</th>
                   <th>Hours</th>
                   <th className="text-end pe-4">Actions</th>
@@ -61,8 +62,9 @@ function AdminAttendance() {
               <tbody>
                 {attendanceData.map((emp) => (
                   <tr key={emp._id} className="align-middle">
-                    <td>{emp._id}</td>
+                    <td>{emp._id.slice(-4)}</td>
                     <td>{emp.employee?.name}</td>
+                    <td>{new Date(emp.date).toLocaleDateString()}</td>
                     <td>
                       {/* Using dynamic Bootstrap Badges for status colors */}
                       <span className={`badge rounded-pill ${emp.status === "Present" ? "bg-success-subtle text-success" :

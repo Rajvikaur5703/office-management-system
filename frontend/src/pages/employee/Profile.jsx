@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function Profile() {
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -12,9 +13,6 @@ function Profile() {
     id: ""
   });
   const [loading, setLoading] = useState(true);
-
-  // Use the environment variable from your Render settings
-  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchProfile = async () => {
