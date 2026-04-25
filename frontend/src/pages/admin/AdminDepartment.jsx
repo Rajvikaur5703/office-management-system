@@ -3,6 +3,7 @@ import axios from 'axios';
 
 const AdminDepartment = () => {
   const API_BASE_URL = import.meta.env.VITE_API_URL;
+<<<<<<< HEAD
 
   const [departments, setDepartments] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -20,6 +21,19 @@ const AdminDepartment = () => {
   );
 
   //Fetch Departments
+=======
+  const [departments, setDepartments] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [deptName, setDeptName] = useState("");
+  const [description, setDescription] = useState("");
+  const [editId, setEditId] = useState(null);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const token = localStorage.getItem("token");
+
+  // ✅ Fetch Departments
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const fetchDepartments = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/api/departments`, {
@@ -64,7 +78,11 @@ const AdminDepartment = () => {
     ).length;
   };
 
+<<<<<<< HEAD
   //Add / Update Department
+=======
+  // ✅ Add / Update Department
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -79,7 +97,11 @@ const AdminDepartment = () => {
       if (editId) {
         await axios.put(
           `${API_BASE_URL}/api/departments/${editId}`,
+<<<<<<< HEAD
           { name: deptName, description: description },
+=======
+          { name: deptName, description },
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setMessage("Department updated!");
@@ -135,6 +157,10 @@ const AdminDepartment = () => {
 
   return (
     <div className="container mt-4">
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
       {/* Header */}
       <div className="row mb-4">
         <div className="col-12">
@@ -148,6 +174,7 @@ const AdminDepartment = () => {
         <div className="alert alert-info alert-dismissible">
           {message}
           <button className="btn-close float-end" onClick={() => setMessage("")}></button>
+<<<<<<< HEAD
         </div>
       )}
 
@@ -302,6 +329,115 @@ const AdminDepartment = () => {
         </div>
       )}
 
+=======
+        </div>
+      )}
+
+      {/* Form */}
+      <div className="card mb-4 shadow-sm border-0">
+        <div className="card-body bg-light rounded">
+          <form onSubmit={handleSubmit} className="row g-3 align-items-end">
+
+            {/* Department Name Input */}
+            <div className="col-md-4">
+              <label className="form-label fw-bold small text-uppercase">Department Name *</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="e.g. IT, HR, Marketing"
+                value={deptName}
+                onChange={(e) => setDeptName(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Description Input */}
+            <div className="col-md-5">
+              <label className="form-label fw-bold small text-uppercase">Description</label>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Brief department details..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="col-md-3 d-flex gap-2">
+              <button className={`btn ${editId ? 'btn-warning' : 'btn-primary'} flex-grow-1`} disabled={loading}>
+                {loading ? (
+                  <span className="spinner-border spinner-border-sm"></span>
+                ) : (
+                  <>{editId ? "Update" : "Add Department"}</>
+                )}
+              </button>
+              {editId && (
+                <button type="button" className="btn btn-outline-secondary" onClick={resetForm}>
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="card shadow-sm">
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover mb-0">
+            <thead className="table-light">
+              <tr>
+                <th>#</th>
+                <th>Department Name</th>
+                <th>Description</th>
+                <th>No. of Employees</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {departments.length > 0 ? (
+                departments.map((dept, index) => (
+                  <tr key={dept._id}>
+                    <td>{index + 1}</td>
+                    <td className="fw-bold">{dept.name}</td>
+                    <td>{dept.description || "-"}</td>
+                    <td>
+                      <span className={`badge ${getEmployeeCount(dept._id) > 0 ? 'bg-info' : 'bg-secondary'}`}>
+                        {getEmployeeCount(dept._id)} Members
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-warning me-2"
+                        onClick={() => handleEdit(dept)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleDelete(dept._id, dept.name)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="text-center py-4">
+                    No departments found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     </div>
   );
 };

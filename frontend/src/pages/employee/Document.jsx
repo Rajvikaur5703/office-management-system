@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 
 function Document() {
+<<<<<<< HEAD
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+=======
+    const API_BASE_URL = import.meta.env.VITE_API_URL;
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     const [filter, setFilter] = useState("all");
     const [documents, setDocuments] = useState([]);
 
@@ -101,17 +105,27 @@ function Document() {
             </div>
 
             {/* Files List */}
+<<<<<<< HEAD
             <div className="card shadow-sm border-black-0">
+=======
+            <div className="card shadow-sm border-0">
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                 <div className="card-body border-bottom">
                     <div className="d-flex justify-content-between align-items-center">
                         <h5 className="mb-0 fw-bold">
                             Files {filter !== "all" && <span className="badge bg-info ms-2 text-dark">{filter}</span>}
                         </h5>
+<<<<<<< HEAD
                         <input
                             type="file" id="fileUpload"
                             accept=".pdf, .docx, .xlsx, .txt" style={{ display: "none" }}
                             onChange={handleFileChange}
                         />
+=======
+                        <input type="file" id="fileUpload" style={{ display: "none" }} onChange={handleFileChange} />
+                        <input type="file" id="fileUpload" accept=".pdf, .docx, .xlsx, .txt"
+                            style={{ display: "none" }} onChange={handleFileChange} />
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                         <button className="btn btn-primary shadow-sm px-4" onClick={() => document.getElementById("fileUpload").click()}>
                             <i className="bi bi-upload me-2"></i> Upload
                         </button>
@@ -134,7 +148,11 @@ function Document() {
                                         <small className="text-muted">Uploaded on: {doc.date}</small>
                                     </div>
                                 </div>
+<<<<<<< HEAD
                                 <button className="btn btn-sm btn-outline-primary" onClick={() => { handleDownload(doc) }}>
+=======
+                                <button className="btn btn-sm btn-outline-primary" onClick={() => { handleDownload }}>
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                                     <i className="bi bi-download"></i>
                                 </button>
                             </div>

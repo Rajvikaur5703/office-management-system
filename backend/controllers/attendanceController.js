@@ -3,6 +3,10 @@ const Attendance = require("../models/Attendance");
 const getToday = () => new Date().toISOString().split("T")[0];
 
 // ================= EMPLOYEE =================
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 // Check In
 const checkIn = async (req, res) => {
     try {
@@ -54,8 +58,13 @@ const getMyAttendance = async (req, res) => {
     }
 };
 
+<<<<<<< HEAD
 
 // ================= ADMIN =================
+=======
+// ================= ADMIN =================
+
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 // Get All Attendance
 const getAllAttendance = async (req, res) => {
     try {

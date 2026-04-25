@@ -28,6 +28,10 @@ function Profile() {
         });
 
         if (res.data) {
+<<<<<<< HEAD
+=======
+          // 2. Ensure jobRole is captured from response
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
           setProfile({ ...res.data, id: res.data._id });
         }
       } catch (err) {
@@ -65,7 +69,11 @@ function Profile() {
       });
 
       if (res.data) {
+<<<<<<< HEAD
         alert("Profile Updated Successfully!");
+=======
+        alert("Profile Updated Successfully! ✅");
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
         // Merge the new data while keeping the populated department name
         setProfile(prev => ({
           ...prev,

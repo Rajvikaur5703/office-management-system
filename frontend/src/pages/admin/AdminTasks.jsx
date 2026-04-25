@@ -3,7 +3,10 @@ import axios from "axios";
 
 function AdminTasks() {
   const API_BASE_URL = import.meta.env.VITE_API_URL;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -16,7 +19,10 @@ function AdminTasks() {
   const [title, setTitle] = useState("");
   const [assigned, setAssigned] = useState("");
   const [dueDate, setDueDate] = useState("");
+<<<<<<< HEAD
   const today = new Date().toISOString().split('T')[0];
+=======
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 
   const token = localStorage.getItem("token");
 
@@ -60,7 +66,11 @@ function AdminTasks() {
         title,
         assigned,
         dueDate,
+<<<<<<< HEAD
         status: editId ? tasks.find(t => t._id === editId).status : "pending"
+=======
+        status: "pending" // Add status explicitly
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
       };
 
       if (editId) {
@@ -89,6 +99,7 @@ function AdminTasks() {
     setEditId(task._id);
     setTitle(task.title);
     setAssigned(task.assigned);
+<<<<<<< HEAD
 
 
     if (task.dueDate) {
@@ -97,6 +108,9 @@ function AdminTasks() {
       setDueDate("");
     }
 
+=======
+    setDueDate(task.dueDate);
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     setShowForm(true);
     window.scrollTo(0, 0);
   };
@@ -135,12 +149,20 @@ function AdminTasks() {
   };
 
   const filteredTasks = tasks.filter(task => {
+<<<<<<< HEAD
 
+=======
+    // Check Search
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     const matchesSearch =
       task.title?.toLowerCase().includes(search.toLowerCase()) ||
       task.assigned?.toLowerCase().includes(search.toLowerCase());
 
+<<<<<<< HEAD
 
+=======
+    // Check Status Filter
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     const matchesStatus = filter === "all" || task.status === filter;
     return matchesSearch && matchesStatus;
   });
@@ -264,7 +286,10 @@ function AdminTasks() {
                     className="form-control"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
+<<<<<<< HEAD
                     min={today}
+=======
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                     required
                   />
                 </div>

@@ -3,6 +3,10 @@ import axios from "axios";
 
 function AdminAttendance() {
   const API_BASE_URL = import.meta.env.VITE_API_URL;
+<<<<<<< HEAD
+=======
+  // Simple data array - easy to manage or fetch from an API later
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const [attendanceData, setAttendanceData] = useState([]);
   const [editAttendance, seteditAttendance] = useState(null);
 
@@ -10,8 +14,12 @@ function AdminAttendance() {
   const fetchAttendance = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/api/attendance`);
+<<<<<<< HEAD
       const todayAttendance = filterTodayAttendance(res.data);
       setAttendanceData(todayAttendance);
+=======
+      setAttendanceData(res.data);
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     } catch (err) {
       console.log(err);
     }
@@ -95,17 +103,24 @@ function AdminAttendance() {
                       {editAttendance === emp._id ?
                         (
                           <div className="btn-group btn-group-sm">
+<<<<<<< HEAD
                             <button className={`btn ${emp.status === "Absent" ? "btn-danger" : "btn-outline-danger"}`}
+=======
+                            <button className={`btn ${emp.status === "Absent" ? "btn-warning" : "btn-outline-warning"}`}
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                               onClick={() => { updateStatus(emp._id, "Absent"); seteditAttendance(null); }}> Absent
                             </button>
 
                             <button className={`btn ${emp.status === "Present" ? "btn-success" : "btn-outline-success"}`}
                               onClick={() => { updateStatus(emp._id, "Present"); seteditAttendance(null); }}> Present
                             </button>
+<<<<<<< HEAD
 
                             <button className={`btn ${emp.status === "HalfDay" ? "btn-info" : "btn-outline-info"}`}
                               onClick={() => { updateStatus(emp._id, "HalfDay"); seteditAttendance(null); }}> Half Day
                             </button>
+=======
+>>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                           </div>
                         ) : (
                           <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => seteditAttendance(emp._id)}>
