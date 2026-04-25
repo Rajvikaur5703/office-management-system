@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 function Document() {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const API_BASE_URL = import.meta.env.VITE_API_URL;
     const [filter, setFilter] = useState("all");
     const [documents, setDocuments] = useState([]);
 
@@ -142,7 +142,6 @@ function Document() {
                     ) : (
                         <div className="text-center py-5 text-muted">No {filter} files found.</div>
                     )}
-
                 </div>
             </div>
         </div>
