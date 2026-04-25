@@ -32,11 +32,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/leave", leaveRoutes);
 app.use("/api/attendance", attendanceRoutes);
 
-<<<<<<< HEAD
 app.use("/api/auth", authRoutes);  
-=======
-app.use("/api/auth", authRoutes);  // Only Auth Routes (Login/Register)
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 app.use("/api/admin", adminRoutes);
 app.use("/api/emp", empRoutes);
 

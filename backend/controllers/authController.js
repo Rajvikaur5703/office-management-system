@@ -1,11 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
-<<<<<<< HEAD
 // LOGIN
-=======
-// 🔐 LOGIN
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;

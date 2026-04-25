@@ -1,44 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-<<<<<<< HEAD
 import AdminDashboardCharts from "../../components/AdminDashboardCharts";
-=======
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 
 function EmpDashboard() {
   const API_BASE_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [empName, setEmpName] = useState("Employee");
-<<<<<<< HEAD
   const [liveHours, setLiveHours] = useState("0h 0m");
   const [chartData, setChartData] = useState({
     taskStatus: { pending: 0, completed: 0, "in-progress": 0 }
   });
-=======
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const [stats, setStats] = useState({
     tasks: 0,
     attendance: 0,
     hoursWorked: "0h",
-<<<<<<< HEAD
     completedTasks: 0,
     recentActivity: []
   });
 
 
   // FETCH DATA
-=======
-    completedTasks: 0  // Changed from streak to completedTasks
-  });
-
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const fetchStats = async () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       const userId = user._id || user.id;
 
-<<<<<<< HEAD
       //Fetch Dashboard Stats
       const res = await axios.get(`${API_BASE_URL}/api/emp/dashboard/${userId}`);
 
@@ -61,35 +48,21 @@ function EmpDashboard() {
           setLiveHours("0h 0m");
         }
       }
-=======
-      const res = await axios.get(
-        `${API_BASE_URL}/api/emp/stats/${userId}`
-      );
-
-      console.log("Stats response:", res.data);
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 
       setStats({
         tasks: res.data.totalTasks || 0,
         attendance: res.data.attendanceDays || 0,
         hoursWorked: res.data.totalHours || "0h",
-<<<<<<< HEAD
         completedTasks: res.data.completedTasks || 0,
         recentActivity: res.data.recentActivity || []
       });
 
       setChartData({ taskStatus: res.data.taskStatus || {} });
-=======
-        completedTasks: res.data.completedTasks || 0  // Changed from streak
-      });
-
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     } catch (err) {
       console.error("Error fetching stats:", err);
     }
   };
 
-<<<<<<< HEAD
   // Helper function to calculate time difference
   const calculateLiveTime = (checkInTimestamp) => {
     const checkIn = new Date(checkInTimestamp);
@@ -111,8 +84,6 @@ function EmpDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-=======
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   useEffect(() => {
     fetchStats();
   }, []);
@@ -123,32 +94,19 @@ function EmpDashboard() {
     if (userString) {
       try {
         const userData = JSON.parse(userString);
-<<<<<<< HEAD
         if (userData?.name) {
           setEmpName(userData.name);
         }
       } catch (err) {
         console.error("Error parsing user data", err);
-=======
-        if (userData && userData.name) {
-          setEmpName(userData.name);
-        }
-      } catch (err) {
-        console.error("Error parsing user data from localStorage", err);
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
       }
     }
   }, []);
 
-<<<<<<< HEAD
-=======
-  // Navigation handlers
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const handleCardClick = (route) => {
     navigate(route);
   };
 
-<<<<<<< HEAD
 
   // CARDS DATA
   const statsData = [
@@ -181,54 +139,15 @@ function EmpDashboard() {
       color: "success",
       route: "/employee/tasks"
     }
-=======
-  const statsData = [
-    { title: 'Total Tasks', value: stats.tasks, icon: 'bi-list-check', color: 'primary', suffix: '', route: '/employee/tasks' },
-    { title: 'Attendance', value: stats.attendance, icon: 'bi-graph-up', color: 'warning', suffix: '%', route: '/employee/attendance' },
-    { title: 'Hours Worked', value: stats.hoursWorked, icon: 'bi-clock-history', color: 'info', suffix: '', route: '/employee/hours' },
-    { title: 'Completed Tasks', value: stats.completedTasks, icon: 'bi-check2-circle', color: 'success', suffix: '', route: '/employee/tasks' }  // Changed
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   ];
 
   return (
     <div className="container-fluid py-4">
-<<<<<<< HEAD
 
       {/* WELCOME */}
       <div className="mb-4">
         <h2 className="fw-bold text-dark">Welcome, {empName}!</h2>
         <p className="text-muted">Here’s your work overview</p>
-=======
-      {/* Welcome Section */}
-      <div className="row mb-4">
-        <div className="col-12">
-          <h2 className="fw-bold text-dark">Welcome, {empName}!</h2>
-          <p className="text-muted">Here's what's happening with your projects today.</p>
-        </div>
-      </div>
-
-      {/* Top Section: Search and Filter */}
-      <div className="row mb-4 align-items-center">
-        <div className="col-md-8 mb-3 mb-md-0">
-          <div className="input-group shadow-sm">
-            <span className="input-group-text bg-white border-end-0">
-              <i className="bi bi-search text-muted"></i>
-            </span>
-            <input
-              type="text"
-              className="form-control border-start-0 ps-0"
-              placeholder="Search tasks, documents, or projects..."
-            />
-          </div>
-        </div>
-        <div className="col-md-4 text-md-end">
-          <select className="form-select shadow-sm d-inline-block w-auto">
-            <option>Last 30 days</option>
-            <option>Last 7 days</option>
-            <option>This Year</option>
-          </select>
-        </div>
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
       </div>
 
       {/* STATS CARDS */}
@@ -236,7 +155,6 @@ function EmpDashboard() {
         {statsData.map((stat, index) => (
           <div key={index} className="col-12 col-sm-6 col-xl-3">
             <div
-<<<<<<< HEAD
               className="card border-black-0 shadow-sm h-100 p-3"
               style={{ cursor: "pointer" }}
               onClick={() => handleCardClick(stat.route)}
@@ -256,23 +174,6 @@ function EmpDashboard() {
                     {stat.value}
                     {stat.suffix || ""}
                   </h4>
-=======
-              className="card border-0 shadow-sm h-100 hover-lift"
-              style={{ cursor: 'pointer' }}
-              onClick={() => handleCardClick(stat.route)}
-            >
-              <div className="card-body">
-                <div className="d-flex align-items-center mb-3">
-                  <div className={`rounded-3 p-3 bg-${stat.color}-subtle text-${stat.color} me-3`}>
-                    <i className={`bi ${stat.icon} fs-4`}></i>
-                  </div>
-                  <div>
-                    <p className="text-muted small mb-0 fw-bold text-uppercase">{stat.title}</p>
-                    <h3 className="fw-bold mb-0">
-                      {stat.value}{stat.suffix}
-                    </h3>
-                  </div>
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                 </div>
               </div>
             </div>
@@ -280,7 +181,6 @@ function EmpDashboard() {
         ))}
       </div>
 
-<<<<<<< HEAD
       {/* Section - 2 Parts */}
       <div className="row g-4 mt-3">
         <div className="col-md-6">
@@ -365,21 +265,6 @@ function EmpDashboard() {
           <div className="card border-black-0 shadow-sm p-4 h-100 bg-white text-center">
             <h5 className="fw-bold mb-4">📈 Task Status Distribution</h5>
             <AdminDashboardCharts taskStatus={chartData.taskStatus} />
-=======
-      {/* Recent Activity Section */}
-      <div className="row mt-5">
-        <div className="col-12">
-          <div className="card border-0 shadow-sm">
-            <div className="card-header bg-white py-3">
-              <h5 className="mb-0 fw-bold">Recent Activity</h5>
-            </div>
-            <div className="card-body">
-              <div className="text-center py-4 text-muted">
-                <i className="bi bi-calendar-check fs-1"></i>
-                <p className="mt-2 mb-0">Your recent activities will appear here</p>
-              </div>
-            </div>
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
           </div>
         </div>
       </div>

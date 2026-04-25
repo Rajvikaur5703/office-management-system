@@ -44,10 +44,6 @@ function Leave() {
     try {
       const res = await axios.post(`${API_BASE_URL}/api/leave/apply`, formData);
       fetchLeaves();
-<<<<<<< HEAD
-=======
-      // Optional: Reset form after success
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
       setFormData({
         ...formData,
         type: "",

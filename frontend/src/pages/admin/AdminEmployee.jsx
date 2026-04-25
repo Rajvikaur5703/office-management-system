@@ -3,10 +3,6 @@ import axios from "axios";
 
 function AdminEmployee() {
   const API_BASE_URL = import.meta.env.VITE_API_URL;
-<<<<<<< HEAD
-
-=======
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -85,11 +81,7 @@ function AdminEmployee() {
         setMsg("Employee created successfully! ✅");
       }
 
-<<<<<<< HEAD
       setTimeout(() => setMsg(""), 3000);
-=======
-      setTimeout(() => setMsg(""), 3000); // Message hide after 3s
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
       resetForm();
       fetchEmployees();
     } catch (err) {
@@ -106,11 +98,7 @@ function AdminEmployee() {
     setSalary(emp.salary);
     setDept(emp.department?._id || "");
     setShowForm(true);
-<<<<<<< HEAD
     window.scrollTo(0, 0);
-=======
-    window.scrollTo(0, 0); // Scroll to top to see the form
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   };
 
   const handleDelete = async (id) => {
@@ -132,7 +120,6 @@ function AdminEmployee() {
       e.employeeId?.toLowerCase().includes(search.toLowerCase())
   );
 
-<<<<<<< HEAD
   // Helper to get department-specific colors
   const getDeptColor = (deptName) => {
     if (!deptName) return "bg-secondary";
@@ -146,20 +133,13 @@ function AdminEmployee() {
     return "bg-dark text-white"; // Default for others
   };
 
-=======
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   return (
     <div className="container mt-4 pb-5">
       {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-<<<<<<< HEAD
           <h2>Employee Management</h2>
           <p className="text-muted">Total Employees: {employees.length}</p>
-=======
-          <h2 className="fw-bold text-dark mb-0">Employee Management</h2>
-          <span className="badge bg-info text-dark">Total: {employees.length}</span>
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
         </div>
         <button
           className={`btn ${showForm ? "btn-secondary" : "btn-primary"} shadow-sm`}
@@ -178,21 +158,11 @@ function AdminEmployee() {
       {/* SEARCH BAR */}
       <div className="mb-4">
         <div className="input-group shadow-sm">
-<<<<<<< HEAD
           <input
             className="form-control border-start-0 ps-3"
             placeholder="🔍 Search by name, email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)} />
-=======
-          {/* <span className="input-group-text bg-white border-end-0 text-muted"></span> */}
-          <input
-            className="form-control border-start-0 ps-0"
-            placeholder="🔍 Search by name, email, or Employee ID..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
         </div>
       </div>
 
@@ -268,17 +238,10 @@ function AdminEmployee() {
                 filtered.map((emp, i) => (
                   <tr key={emp._id}>
                     <td className="ps-3 text-muted">{i + 1}</td>
-<<<<<<< HEAD
                     <td><span className="badge bg-light text-black">{emp._id.slice(-5)}</span></td>
                     <td className="fw-bold">{emp.name}</td>
                     <td>{emp.email}</td>
                     <td><span className={`badge ${getDeptColor(emp.department?.name)} px-2 py-1 shadow-sm`}>{emp.department?.name || "N/A"}</span></td>
-=======
-                    <td><span className="badge bg-light text-black">{emp._id}</span></td>
-                    <td className="fw-bold">{emp.name}</td>
-                    <td>{emp.email}</td>
-                    <td><span className="badge bg-secondary opacity-75">{emp.department?.name || "N/A"}</span></td>
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                     <td>{emp.jobRole || "-"}</td>
                     <td className="fw-semibold">₹{emp.salary?.toLocaleString()}</td>
                     <td className="text-center">

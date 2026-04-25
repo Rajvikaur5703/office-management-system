@@ -73,11 +73,7 @@ function AdminDocument() {
                 {["pdf", "excel", "docx"].map((type) => (
                     <div className="col-6 col-md-3" key={type}>
                         <div
-<<<<<<< HEAD
                             className={`card border-black-0 shadow-sm text-center py-3 h-100 cursor-pointer ${filter === type ? 'bg-primary text-white' : 'bg-white'}`}
-=======
-                            className={`card border-0 shadow-sm text-center py-3 h-100 cursor-pointer ${filter === type ? 'bg-primary text-white' : 'bg-white'}`}
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                             onClick={() => setFilter(type)}
                             style={{ cursor: 'pointer' }}
                         >
@@ -105,27 +101,17 @@ function AdminDocument() {
             </div>
 
             {/* Files List */}
-<<<<<<< HEAD
             <div className="card shadow-sm border-black-0">
-=======
-            <div className="card shadow-sm border-0">
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                 <div className="card-body border-bottom">
                     <div className="d-flex justify-content-between align-items-center">
                         <h5 className="mb-0 fw-bold">
                             Files {filter !== "all" && <span className="badge bg-info ms-2 text-dark">{filter}</span>}
                         </h5>
-<<<<<<< HEAD
                         <input
                             type="file" id="fileUpload"
                             accept=".pdf, .docx, .xlsx, .txt" style={{ display: "none" }}
                             onChange={handleFileChange}
                         />
-=======
-                        <input type="file" id="fileUpload" style={{ display: "none" }} onChange={handleFileChange} />
-                        <input type="file" id="fileUpload" accept=".pdf, .docx, .xlsx, .txt"
-                            style={{ display: "none" }} onChange={handleFileChange} />
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                         <button className="btn btn-primary shadow-sm px-4" onClick={() => document.getElementById("fileUpload").click()}>
                             <i className="bi bi-upload me-2"></i> Upload
                         </button>
@@ -139,26 +125,16 @@ function AdminDocument() {
                             <div key={index} className="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
                                 <div className="d-flex align-items-center">
                                     <i className={`bi fs-4 me-3 text-secondary ${doc.type === 'pdf' ? 'bi-file-earmark-pdf' :
-<<<<<<< HEAD
                                         doc.type === 'excel' || doc.type === 'xlsx' ? 'bi-file-earmark-spreadsheet' :
                                             doc.type === 'docx' || doc.type === 'doc' ? 'bi-file-earmark-word' :
                                                 'bi-file-earmark'
-=======
-                                            doc.type === 'excel' || doc.type === 'xlsx' ? 'bi-file-earmark-spreadsheet' :
-                                                doc.type === 'docx' || doc.type === 'doc' ? 'bi-file-earmark-word' :
-                                                    'bi-file-earmark'
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                                         }`}></i>
                                     <div>
                                         <div className="fw-bold">{doc.name}</div>
                                         <small className="text-muted">Uploaded on: {doc.date}</small>
                                     </div>
                                 </div>
-<<<<<<< HEAD
                                 <button className="btn btn-sm btn-outline-primary" onClick={() => { handleDownload(doc) }}>
-=======
-                                <button className="btn btn-sm btn-outline-primary" onClick={() => { handleDownload }}>
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                                     <i className="bi bi-download"></i>
                                 </button>
                             </div>
@@ -166,10 +142,6 @@ function AdminDocument() {
                     ) : (
                         <div className="text-center py-5 text-muted">No {filter} files found.</div>
                     )}
-<<<<<<< HEAD
-=======
-
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                 </div>
             </div>
         </div>

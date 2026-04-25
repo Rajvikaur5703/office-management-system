@@ -37,7 +37,6 @@ exports.updateDepartment = async (req, res) => {
     try {
         const updated = await Department.findByIdAndUpdate(
             req.params.id,
-<<<<<<< HEAD
             { name: req.body.name, description: req.body.description },
             { new: true, runValidators: true }
         );
@@ -45,11 +44,6 @@ exports.updateDepartment = async (req, res) => {
         if (!updated) {
             return res.status(404).json({ message: "Department not found" });
         }
-=======
-            { name: req.body.name },
-            { new: true }
-        );
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
         res.json(updated);
     } catch (err) {
         res.status(500).json(err);

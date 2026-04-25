@@ -13,34 +13,21 @@ function Tasks() {
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-<<<<<<< HEAD
   const employeeId = user?._id || user?.id;
 
   const fetchTasks = useCallback(async () => {
     if (!employeeId) {
       console.error("No employee ID found");
-=======
-  // Try to get ID first, fall back to name if that's how your API is set up
-  const employeeIdentifier = user?._id || user?.id || user?.name;
-
-  const fetchTasks = useCallback(async () => {
-    if (!employeeIdentifier) {
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
       setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
-<<<<<<< HEAD
       console.log("Fetching tasks for employee ID:", employeeId);
 
       const res = await axios.get(
         `${API_BASE_URL}/api/tasks/employee/${employeeId}`,
-=======
-      const res = await axios.get(
-        `${API_BASE_URL}/api/tasks/employee/${employeeIdentifier}`,
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setTasks(res.data);
@@ -50,11 +37,7 @@ function Tasks() {
     } finally {
       setLoading(false);
     }
-<<<<<<< HEAD
   }, [employeeId, token]);
-=======
-  }, [employeeIdentifier, token]);
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 
   useEffect(() => {
     fetchTasks();
@@ -108,11 +91,7 @@ function Tasks() {
       <div className="row g-3 mb-5">
         {stats.map((stat, index) => (
           <div key={index} className="col-12 col-sm-6 col-xl-3" style={{ cursor: 'pointer' }} onClick={() => setfilter(stat.filter)}>
-<<<<<<< HEAD
             <div className={`card border-0 shadow-sm ${filter === stat.filter ? 'ring-2 border-primary' : ''}`}>
-=======
-            <div className={`card border-0 shadow-sm ${filter === stat.filter ? 'ring-2 border-primary' : ''}`} style={filter === stat.filter ? { border: '2px solid' } : {}}>
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
               <div className="card-body d-flex align-items-center">
                 <div className={`rounded-circle p-3 bg-${stat.color} bg-opacity-10 text-${stat.color} me-3`}>
                   <i className={`bi ${stat.icon} fs-4`}></i>
@@ -166,11 +145,7 @@ function Tasks() {
                 filteredTasks.map((task) => (
                   <tr key={task._id}>
                     <td className="ps-4 fw-bold">{task.title}</td>
-<<<<<<< HEAD
                     <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No Deadline"}</td>
-=======
-                    <td>{task.dueDate ? task.dueDate.split("T")[0] : "No Deadline"}</td>
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                     <td>
                       <span className={getPriorityClass(task.priority)}>
                         ● {task.priority || 'Normal'}
@@ -178,16 +153,10 @@ function Tasks() {
                     </td>
                     <td>
                       <span className={`badge rounded-pill px-3 py-2 
-<<<<<<< HEAD
                         ${task.status === "completed" || task.status === "Completed" ? "bg-success"
                           : task.status === "in-progress" || task.status === "In Progress" ? "bg-warning text-dark"
                             : "bg-secondary"}`}>
                         {task.status}
-=======
-                        ${task.status === "completed" ? "bg-success"
-                          : task.status === "in-progress" ? "bg-warning text-dark" : "bg-secondary"}`}>
-                        {task.status === "pending" ? "Pending" : task.status === "in-progress" ? "In Progress" : "Completed"}
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                       </span>
                     </td>
                     <td className="text-end pe-4">

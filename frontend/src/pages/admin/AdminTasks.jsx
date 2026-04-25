@@ -3,10 +3,6 @@ import axios from "axios";
 
 function AdminTasks() {
   const API_BASE_URL = import.meta.env.VITE_API_URL;
-<<<<<<< HEAD
-
-=======
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const [tasks, setTasks] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -19,10 +15,7 @@ function AdminTasks() {
   const [title, setTitle] = useState("");
   const [assigned, setAssigned] = useState("");
   const [dueDate, setDueDate] = useState("");
-<<<<<<< HEAD
   const today = new Date().toISOString().split('T')[0];
-=======
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 
   const token = localStorage.getItem("token");
 
@@ -66,11 +59,7 @@ function AdminTasks() {
         title,
         assigned,
         dueDate,
-<<<<<<< HEAD
         status: editId ? tasks.find(t => t._id === editId).status : "pending"
-=======
-        status: "pending" // Add status explicitly
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
       };
 
       if (editId) {
@@ -99,7 +88,6 @@ function AdminTasks() {
     setEditId(task._id);
     setTitle(task.title);
     setAssigned(task.assigned);
-<<<<<<< HEAD
 
 
     if (task.dueDate) {
@@ -108,9 +96,6 @@ function AdminTasks() {
       setDueDate("");
     }
 
-=======
-    setDueDate(task.dueDate);
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     setShowForm(true);
     window.scrollTo(0, 0);
   };
@@ -149,20 +134,10 @@ function AdminTasks() {
   };
 
   const filteredTasks = tasks.filter(task => {
-<<<<<<< HEAD
-
-=======
-    // Check Search
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     const matchesSearch =
       task.title?.toLowerCase().includes(search.toLowerCase()) ||
       task.assigned?.toLowerCase().includes(search.toLowerCase());
 
-<<<<<<< HEAD
-
-=======
-    // Check Status Filter
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     const matchesStatus = filter === "all" || task.status === filter;
     return matchesSearch && matchesStatus;
   });
@@ -286,10 +261,7 @@ function AdminTasks() {
                     className="form-control"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-<<<<<<< HEAD
                     min={today}
-=======
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
                     required
                   />
                 </div>
@@ -370,46 +342,6 @@ function AdminTasks() {
                 </tr>
               )}
             </tbody>
-            {/* <tbody>
-              {filteredTasks.length > 0 ? (
-                filteredTasks.map((task, idx) => (
-                  <tr key={task._id}>
-                    <td>{idx + 1}</td>
-                    <td>{task.title}</td>
-                    <td>{task.assigned}</td>
-                    <td>
-                      <button
-                        className={`btn btn-sm ${task.status === "completed" ? "btn-success" : "btn-warning"}`}
-                        onClick={() => updateStatus(task._id, task.status)}
-                      >
-                        {task.status || "pending"}
-                      </button>
-                    </td>
-                    <td>{task.dueDate}</td>
-                    <td>
-                      <button
-                        className="btn btn-sm btn-warning me-1"
-                        onClick={() => editTask(task)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => deleteTask(task._id, task.title)}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="text-center py-4">
-                    No tasks found
-                  </td>
-                </tr>
-              )}
-            </tbody> */}
           </table>
         </div>
       </div>

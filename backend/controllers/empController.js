@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const Task= require("../models/Task");
@@ -7,11 +6,6 @@ const Leave = require("../models/Leave");
 
 
 //GET ALL EMPLOYEES 
-=======
-const User = require("../models/User");
-
-// GET ALL EMPLOYEES (ONLY EMPLOYEES)
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 exports.getAllEmployees = async (req, res) => {
     try {
         const users = await User.find({ role: "employee" }).populate("department");
@@ -75,11 +69,7 @@ exports.deleteEmployee = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
 //LOGGED IN USER (/me)
-=======
-// 👤 LOGGED IN USER (/me)
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 exports.getMe = async (req, res) => {
     try {
         // Check for both .id and ._id just in case
@@ -103,11 +93,7 @@ exports.getMe = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
 // EMPLOYEE STATS
-=======
-// 📊 EMPLOYEE STATS
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 exports.getEmployeeStats = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -120,7 +106,6 @@ exports.getEmployeeStats = async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
-<<<<<<< HEAD
     }
 };
 
@@ -324,7 +309,5 @@ exports.debugEmployeeData = async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
-=======
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     }
 };

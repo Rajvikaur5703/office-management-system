@@ -13,42 +13,23 @@ function AdminDashboard() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
 
-<<<<<<< HEAD
-=======
-  // Navigation handlers
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const handleCardClick = (route) => {
     navigate(route);
   };
 
-<<<<<<< HEAD
   useEffect(() => {
     const userString = localStorage.getItem("user");
 
-=======
-
-  useEffect(() => {
-    const userString = localStorage.getItem("user");
-
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     if (role !== "admin" || !token) {
       navigate("/");
       return;
     }
 
-<<<<<<< HEAD
     // Parsing the user object to get the name
     if (userString) {
       try {
         const userData = JSON.parse(userString);
         setAdminName(userData.name || "Admin");
-=======
-    // Parse the user object to get the name
-    if (userString) {
-      try {
-        const userData = JSON.parse(userString);
-        setAdminName(userData.name || "Admin"); // Use .name or whatever key your backend sends
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
       } catch (err) {
         console.error("Error parsing user data", err);
       }
@@ -97,15 +78,9 @@ function AdminDashboard() {
       {/* Top 4 Stats Row - Clickable Cards*/}
       <div className="row g-3 mb-4">
         {stats.map((s, i) => (
-<<<<<<< HEAD
           <div key={i} className="col-12 col-sm-6 col-xl-3">
             <div
               className="card border-black-0 shadow-sm h-100 p-3"
-=======
-          <div key={i} className="col-md-3">
-            <div
-              className="card border-0 shadow-sm h-100 p-3"
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
               style={{
                 borderTop: `4px solid ${s.color}`, cursor: 'pointer',
                 transition: 'transform 0.2s ease, box-shadow 0.2s ease'

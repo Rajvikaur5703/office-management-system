@@ -12,10 +12,6 @@ function Attendance() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-<<<<<<< HEAD
-=======
-  // Get today's date formatted nicely for display
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
   const todayDisplay = new Date().toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
@@ -102,10 +98,6 @@ function Attendance() {
       if (data.length > 0) {
         const latest = data[0];
 
-<<<<<<< HEAD
-=======
-        // Compare dates properly
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
         const latestDate = new Date(latest.date);
         const today = new Date();
 
@@ -144,11 +136,7 @@ function Attendance() {
 
   useEffect(() => {
     fetchAttendance();
-<<<<<<< HEAD
   }, []);
-=======
-  }, []); // Run once on mount
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
 
   const handleCheckOut = async () => {
     if (isCheckingOut) return;
@@ -167,11 +155,7 @@ function Attendance() {
 
       const diffMs = now - checkInTime; // difference in milliseconds
 
-<<<<<<< HEAD
       const totalMinutes = Math.round(diffMs / (1000 * 60));
-=======
-      const totalMinutes = Math.floor(diffMs / (1000 * 60));
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
 
@@ -195,10 +179,6 @@ function Attendance() {
       alert(`Server Error: ${err.response?.data?.message || err.message}`);
     } finally {
       setIsCheckingOut(false);
-<<<<<<< HEAD
-
-=======
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
     }
   };
 
