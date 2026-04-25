@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// 🔐 HASH PASSWORD
+// HASH PASSWORD
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
@@ -38,24 +38,7 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-<<<<<<< HEAD
-=======
-// 🔢 EMPLOYEE ID GENERATOR
-// userSchema.pre("save", async function () {
-//   if (this.employeeId) return;
-
-//   const counter = await Counter.findOneAndUpdate(
-//     { name: "employeeId" },
-//     { $inc: { value: 1 } },
-//     { new: true, upsert: true }
-//   );
-
-//   const number = counter.value.toString().padStart(3, "0");
-//   this.employeeId = `EMP${number}`;
-// });
-
->>>>>>> 3c55bf2b1470949dee93eb0b99682a0e7ce19848
-// 🔑 COMPARE PASSWORD (FIX)
+//COMPARE PASSWORD (FIX)
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
