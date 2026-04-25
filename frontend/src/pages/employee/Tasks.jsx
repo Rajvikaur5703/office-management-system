@@ -1,64 +1,82 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
-
 function Tasks() {
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const [tasks, setTasks] = useState([]);
   const [editingTaskId, setEditingTaskId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [filter, setfilter] = useState("all");
+  const [search, setSearch] = useState("");
 
-  // Calculate real stats from tasks
-  const totalTasks = tasks.length;
-  const pendingTasks = tasks.filter(
-    (task) => task.status === "pending").length;
-
-  const inProgressTasks = tasks.filter(
-    (task) => task.status === "in-progress").length;
-
-  const completedTasks = tasks.filter(
-    (task) => task.status === "completed").length;
-
-
-  const stats = [
-    { title: 'Total Tasks', value: totalTasks, icon: 'bi-list-task', color: 'primary' },
-    { title: 'Pending', value: pendingTasks, icon: 'bi-clock-history', color: 'danger' },
-    { title: 'In Progress', value: inProgressTasks, icon: 'bi-gear-wide-connected', color: 'warning' },
-    { title: 'Completed', value: completedTasks, icon: 'bi-check2-circle', color: 'success' }
-  ];
-
+  // Get Auth data
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
-  const employeeName = user?.name;
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  const fetchTasks = async () => {
+  const employeeId = user?._id || user?.id;
+
+  const fetchTasks = useCallback(async () => {
+    if (!employeeId) {
+      console.error("No employee ID found");
+      setLoading(false);
+      return;
+    }
+
     try {
+      setLoading(true);
+      console.log("Fetching tasks for employee ID:", employeeId);
+
       const res = await axios.get(
-        `http://localhost:5000/api/tasks/employee/${employeeName}`
+        `${API_BASE_URL}/api/tasks/employee/${employeeId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setTasks(res.data);
+      console.log("Tasks fetched:", res.data);
     } catch (err) {
-      console.log(err);
+      console.error("Error fetching tasks:", err);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [employeeId, token]);
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
   const updateStatus = async (taskId, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/tasks/update-status/${taskId}`,
+        `${API_BASE_URL}/api/tasks/update-status/${taskId}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       fetchTasks();
     } catch (err) {
-      console.error("Failed to update status");
+      console.error("Failed to update status", err);
     }
   };
 
-  // Easy helper for Priority colors
+  const filteredTasks = tasks.filter(task => {
+    const matchesSearch =
+      task.title?.toLowerCase().includes(search.toLowerCase()) ||
+      task.assigned?.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = filter === "all" || task.status === filter;
+    return matchesSearch && matchesStatus;
+  });
+
+  // Stats Logic
+  const totalTasks = tasks.length;
+  const pendingTasks = tasks.filter(t => t.status === "pending").length;
+  const inProgressTasks = tasks.filter(t => t.status === "in-progress").length;
+  const completedTasks = tasks.filter(t => t.status === "completed").length;
+
+  const stats = [
+    { title: 'Total Tasks', value: totalTasks, icon: 'bi-list-task', color: 'primary', filter: 'all' },
+    { title: 'Pending', value: pendingTasks, icon: 'bi-clock-history', color: 'danger', filter: 'pending' },
+    { title: 'In Progress', value: inProgressTasks, icon: 'bi-gear-wide-connected', color: 'warning', filter: 'in-progress' },
+    { title: 'Completed', value: completedTasks, icon: 'bi-check2-circle', color: 'success', filter: 'completed' }
+  ];
+
   const getPriorityClass = (priority) => {
     if (priority === 'High') return 'text-danger fw-bold';
     if (priority === 'Medium') return 'text-warning fw-bold';
@@ -69,11 +87,11 @@ function Tasks() {
     <div className="container-fluid py-4">
       <h2 className="fw-bold mb-4">My Tasks</h2>
 
-      {/* Stats Cards Row */}
+      {/* Stats Cards */}
       <div className="row g-3 mb-5">
         {stats.map((stat, index) => (
-          <div key={index} className="col-12 col-sm-6 col-xl-3">
-            <div className="card border-0 shadow-sm">
+          <div key={index} className="col-12 col-sm-6 col-xl-3" style={{ cursor: 'pointer' }} onClick={() => setfilter(stat.filter)}>
+            <div className={`card border-0 shadow-sm ${filter === stat.filter ? 'ring-2 border-primary' : ''}`}>
               <div className="card-body d-flex align-items-center">
                 <div className={`rounded-circle p-3 bg-${stat.color} bg-opacity-10 text-${stat.color} me-3`}>
                   <i className={`bi ${stat.icon} fs-4`}></i>
@@ -88,8 +106,19 @@ function Tasks() {
         ))}
       </div>
 
+      {/* Search Bar - Optional but helpful */}
+      <div className="mb-4 col-md-6">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search tasks..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
       {/* Task List Table */}
-      <div className="card shadow-sm border-0">
+      <div className="card shadow-sm border-black-0">
         <div className="card-header bg-white py-3">
           <h5 className="mb-0 fw-bold">Current Assignments</h5>
         </div>
@@ -105,39 +134,48 @@ function Tasks() {
               </tr>
             </thead>
             <tbody>
-              {tasks.map((task, index) => (
-                <tr key={index}>
-                  <td className="ps-4 fw-bold">{task.title}</td>
-                  <td><i className="bi bi-calendar-event me-2 text-muted"></i>{task.dueDate}</td>
-                  <td>
-                    <span className={getPriorityClass(task.priority)}>
-                      ● {task.priority}
-                    </span>
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-5">
+                    <div className="spinner-border text-primary" role="status"></div>
+                    <div className="mt-2">Loading tasks...</div>
                   </td>
-                  <td>
-                    <span
-                      className={`badge rounded-pill px-3 py-2 
-                        ${task.status === "completed" ? "bg-success"
-                          : task.status === "in-progress" ? "bg-warning text-dark" : "bg-secondary"}`}>
-
-                      {task.status === "pending" ? "Pending" : task.status === "in-progress"
-                        ? "In Progress" : "Completed"}
-                    </span>
-                  </td>
-                  <td className="text-end pe-4">
-                    {editingTaskId === task._id ?
-                      (
-                        <div className="btn-group btn-group-sm">
-                          <button className={`btn ${task.status === "pending" ? "btn-secondary" : "btn-outline-secondary"}`}
-                            onClick={() => { updateStatus(task._id, "pending"); setEditingTaskId(null); }}> Pending
+                </tr>
+              ) : filteredTasks.length > 0 ? (
+                filteredTasks.map((task) => (
+                  <tr key={task._id}>
+                    <td className="ps-4 fw-bold">{task.title}</td>
+                    <td>{task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No Deadline"}</td>
+                    <td>
+                      <span className={getPriorityClass(task.priority)}>
+                        ● {task.priority || 'Normal'}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge rounded-pill px-3 py-2 
+                        ${task.status === "completed" || task.status === "Completed" ? "bg-success"
+                          : task.status === "in-progress" || task.status === "In Progress" ? "bg-warning text-dark"
+                            : "bg-secondary"}`}>
+                        {task.status}
+                      </span>
+                    </td>
+                    <td className="text-end pe-4">
+                      {editingTaskId === task._id ? (
+                        <div className="btn-group btn-group-sm shadow-sm">
+                          <button
+                            className={`btn ${task.status === "pending" ? "btn-secondary" : "btn-outline-secondary"}`}
+                            onClick={() => { updateStatus(task._id, "pending"); setEditingTaskId(null); }}>
+                            Pending
                           </button>
-
-                          <button className={`btn ${task.status === "in-progress" ? "btn-warning" : "btn-outline-warning"}`}
-                            onClick={() => { updateStatus(task._id, "in-progress"); setEditingTaskId(null); }}> In Progress
+                          <button
+                            className={`btn ${task.status === "in-progress" ? "btn-warning" : "btn-outline-warning"}`}
+                            onClick={() => { updateStatus(task._id, "in-progress"); setEditingTaskId(null); }}>
+                            In Progress
                           </button>
-
-                          <button className={`btn ${task.status === "completed" ? "btn-success" : "btn-outline-success"}`}
-                            onClick={() => { updateStatus(task._id, "completed"); setEditingTaskId(null); }}> Completed
+                          <button
+                            className={`btn ${task.status === "completed" ? "btn-success" : "btn-outline-success"}`}
+                            onClick={() => { updateStatus(task._id, "completed"); setEditingTaskId(null); }}>
+                            Completed
                           </button>
                         </div>
                       ) : (
@@ -145,9 +183,17 @@ function Tasks() {
                           Update
                         </button>
                       )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center py-5 text-muted">
+                    <i className="bi bi-clipboard-x fs-2 d-block mb-2"></i>
+                    No tasks found for your account.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

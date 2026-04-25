@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function Leave() {
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const [leaves, setLeaves] = useState([]);
-
+  const today = new Date().toISOString().split('T')[0];
   const user = JSON.parse(localStorage.getItem("user"));
   const [formData, setFormData] = useState({
     name: user?.email || "",
@@ -11,11 +12,11 @@ function Leave() {
     fromdate: "",
     todate: "",
     description: "",
-    appliedDate: new Date().toISOString().split('T')[0] // Default to today
+    appliedDate: new Date().toISOString().split('T')[0]
   });
 
   const fetchLeaves = async () => {
-    const res = await axios.get(`http://localhost:5000/api/leave/${user.email}`);
+    const res = await axios.get(`${API_BASE_URL}/api/leave/${user.email}`);
     setLeaves(res.data);
   };
 
@@ -29,17 +30,27 @@ function Leave() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation Logic
+    if (formData.fromdate < today) {
+      alert("From Date cannot be in the past.");
+      return;
+    }
+    if (formData.todate < formData.fromdate) {
+      alert("To Date cannot be before the From Date.");
+      return;
+    }
+
     try {
-      console.log("Submitting:", formData);
-
-      const res = await axios.post(
-        "http://localhost:5000/api/leave/apply",
-        formData
-      );
-
-      console.log("Saved:", res.data);
-
+      const res = await axios.post(`${API_BASE_URL}/api/leave/apply`, formData);
       fetchLeaves();
+      setFormData({
+        ...formData,
+        type: "",
+        fromdate: "",
+        todate: "",
+        description: ""
+      });
     } catch (err) {
       console.error("Error:", err.response?.data || err.message);
     }
@@ -52,7 +63,7 @@ function Leave() {
       <div className="row g-4">
         {/* Left Column: Add Leave Form */}
         <div className="col-lg-4">
-          <div className="card shadow-sm border-0">
+          <div className="card shadow-sm border-black-0">
             <div className="card-header bg-primary text-white py-3">
               <h5 className="mb-0 fw-bold">➕ Apply for Leave</h5>
             </div>
@@ -64,18 +75,18 @@ function Leave() {
                     <option value="">Select Type</option>
                     <option value="Sick Leave">Sick Leave</option>
                     <option value="Casual Leave">Casual Leave</option>
-                    <option value="Personal">Personal</option>
+                    <option value="Personal">Personal Leave</option>
                   </select>
                 </div>
 
                 <div className="row">
                   <div className="col-6 mb-3">
                     <label className="form-label small fw-bold">From</label>
-                    <input type="date" name="fromdate" className=" form-control" value={formData.fromdate} onChange={handleChange} required />
+                    <input type="date" name="fromdate" className=" form-control" value={formData.fromdate} onChange={handleChange} min={today} required />
                   </div>
                   <div className="col-6 mb-3">
                     <label className="form-label small fw-bold">To</label>
-                    <input type="date" name="todate" className="form-control" value={formData.todate} onChange={handleChange} required />
+                    <input type="date" name="todate" className="form-control" value={formData.todate} onChange={handleChange} min={formData.fromdate} required />
                   </div>
                 </div>
 
@@ -99,7 +110,7 @@ function Leave() {
 
         {/* Right Column: Leave History Table */}
         <div className="col-lg-8">
-          <div className="card shadow-sm border-0">
+          <div className="card shadow-sm border-black-0">
             <div className="card-header bg-white py-3">
               <h5 className="mb-0 fw-bold">My Leave History</h5>
             </div>

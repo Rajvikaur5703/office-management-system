@@ -1,67 +1,126 @@
 const express = require("express");
 const router = express.Router();
-const Attendance = require("../models/Attendence");
+const Attendance = require("../models/Attendance");
 
-// ✅ Check In
+// Check In
 router.post("/checkin", async (req, res) => {
     try {
-        const { userId, name, date, checkIn } = req.body;
+        console.log("BODY RECEIVED:", req.body);
 
-        const newRecord = new Attendance({
-            userId,
-            name,
+        const { employee, date, checkIn } = req.body;
+
+        if (!employee || !date) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        // Check if already checked in today
+        const today = new Date(date);
+        today.setHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(date);
+        tomorrow.setHours(23, 59, 59, 999);
+
+        const existingAttendance = await Attendance.findOne({
+            employee: employee,
+            date: {
+                $gte: today,
+                $lte: tomorrow
+            }
+        });
+
+        if (existingAttendance) {
+            return res.status(400).json({ message: "Already checked in today" });
+        }
+
+        const attendance = new Attendance({
+            employee,
             date,
             checkIn,
-            checkOut: "-",
-            hours: "-",
             status: "Present"
         });
 
-        await newRecord.save();
-        res.json(newRecord);
+        await attendance.save();
+
+        // Populate employee info before sending
+        const populatedAttendance = await Attendance.findById(attendance._id)
+            .populate("employee", "name email");
+
+        res.status(201).json(populatedAttendance);
 
     } catch (err) {
-        res.status(500).json(err);
+        console.error("🔥 BACKEND ERROR:", err.message);
+        res.status(500).json({ message: err.message });
     }
 });
 
-// ✅ Check Out
+// Check Out
 router.put("/checkout/:id", async (req, res) => {
     try {
+        const { checkOut, hours } = req.body;
+
         const updated = await Attendance.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            {
+                checkOut: checkOut,
+                hours: hours
+            },
             { new: true }
-        );
+        ).populate("employee", "name email");
+
+        if (!updated) {
+            return res.status(404).json({ message: "Attendance record not found" });
+        }
 
         res.json(updated);
     } catch (err) {
-        res.status(500).json(err);
+        console.error("Checkout error:", err);
+        res.status(500).json({ message: err.message });
     }
 });
 
-// ✅ Get Employee History
-router.get("/:userId", async (req, res) => {
-    const data = await Attendance.find({ userId: req.params.userId }).sort({ _id: -1 });
-    res.json(data);
+// Get Employee History - FIXED to use employee field
+router.get("/:employeeId", async (req, res) => {
+    try {
+        console.log("Fetching attendance for employee:", req.params.employeeId);
+
+        const data = await Attendance.find({ employee: req.params.employeeId })
+            .sort({ createdAt: -1 })
+            .populate("employee", "name email");
+
+        console.log(`Found ${data.length} records`);
+        res.json(data);
+    } catch (err) {
+        console.error("Fetch error:", err);
+        res.status(500).json({ message: err.message });
+    }
 });
 
-// ✅ Admin - Get All
+// Admin - Get All
 router.get("/", async (req, res) => {
-    const data = await Attendance.find().sort({ _id: -1 });
-    res.json(data);
+    try {
+        const data = await Attendance.find()
+            .populate("employee", "name")
+            .sort({ createdAt: -1 });
+
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 // Update attendance status (Admin)
 router.put("/update-status/:id", async (req, res) => {
-    const updated = await Attendance.findByIdAndUpdate(
-        req.params.id,
-        { status: req.body.status },
-        { new: true }
-    );
+    try {
+        const updated = await Attendance.findByIdAndUpdate(
+            req.params.id,
+            { status: req.body.status },
+            { new: true }
+        ).populate("employee", "name email");
 
-    res.json(updated);
+        res.json(updated);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
 });
-
 
 module.exports = router;

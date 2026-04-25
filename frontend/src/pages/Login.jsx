@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [errorMessage, setErrorMessage] = useState("");
@@ -14,13 +15,13 @@ function Login() {
   // Handle login
   const handleLogin = async (e) => {
     e.preventDefault();
-    setErrorMessage(""); // Clear previous errors
+    setErrorMessage("");
 
     const { username, password } = formData;
 
     try {
-      // Send login request
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: username.trim().toLowerCase(), password }),
@@ -32,17 +33,17 @@ function Login() {
         console.log("Login success:", data);
 
         // Extract role from user object
-        const role = data.user.role;
+        const role = data.user.role.trim().toLowerCase();
 
         // Store token and role in localStorage
         localStorage.setItem("token", data.token);
         localStorage.setItem("role", role);
         localStorage.setItem("user", JSON.stringify(data.user));
 
-        // Redirect based on role
+        // Redirect based on rolea
         if (role === "admin") {
           navigate("/admin/dashboard");
-        } else if (role === "user") {
+        } else if (role === "employee" || role === "user") {
           navigate("/employee/dashboard");
         } else {
           setErrorMessage("Unknown user role. Cannot redirect.");

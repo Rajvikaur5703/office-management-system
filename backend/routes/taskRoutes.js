@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require('mongoose');
 const Task = require("../models/Task");
 
 // Add Task (Admin)
@@ -19,12 +20,26 @@ router.get("/my-tasks", async (req, res) => {
     res.json(tasks);
 });
 
-// Get tasks for employee
-router.get("/employee/:name", async (req, res) => {
+// Get tasks for employee - Accept both ID and name
+router.get("/employee/:identifier", async (req, res) => {
     try {
-        const tasks = await Task.find({ assigned: req.params.name });
+        const identifier = req.params.identifier;
+        let tasks;
+        
+        // Check if identifier is a valid ObjectId (24 characters hex)
+        if (mongoose.Types.ObjectId.isValid(identifier)) {
+            // Query by ID
+            tasks = await Task.find({ assigned: identifier });
+            console.log(`Querying tasks by ID: ${identifier}, found: ${tasks.length}`);
+        } else {
+            // Query by name (fallback for backward compatibility)
+            tasks = await Task.find({ assigned: identifier });
+            console.log(`Querying tasks by name: ${identifier}, found: ${tasks.length}`);
+        }
+        
         res.json(tasks);
     } catch (err) {
+        console.error("Error fetching tasks:", err);
         res.status(500).json({ message: "Error fetching tasks" });
     }
 });
@@ -38,6 +53,25 @@ router.put("/update-status/:id", async (req, res) => {
     );
 
     res.json(updated);
+});
+
+// Update full task (Admin)
+router.put("/update-task/:id", async (req, res) => {
+    try {
+        const updatedTask = await Task.findByIdAndUpdate(
+            req.params.id,
+            { 
+                title: req.body.title,
+                assigned: req.body.assigned,
+                dueDate: req.body.dueDate,
+                status: req.body.status 
+            },
+            { new: true }
+        );
+        res.json(updatedTask);
+    } catch (err) {
+        res.status(500).json({ message: "Update failed" });
+    }
 });
 
 // Delete task

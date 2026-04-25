@@ -11,11 +11,11 @@ exports.uploadDocument = async (req, res) => {
     name: req.file.originalname,
     type: req.file.originalname.split('.').pop(),
     path: req.file.path,
-    date: new Date().toLocaleDateString() // Or any format you prefer
+    date: new Date().toLocaleDateString() 
 });
 
 const savedDoc = await newDoc.save();
-res.status(201).json(savedDoc); // This returns the MongoDB object including its _id
+res.status(201).json(savedDoc); 
     } catch (error) {
         res.status(500).json({ message: "Server Error", error });
     }

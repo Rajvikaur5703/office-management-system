@@ -1,15 +1,33 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/User");
 
-//Get all employees
-router.get("/count", async (req, res) => {
-    try {
-        const count = await User.countDocuments();
-        res.json({ totalEmployees: count });
-    }
-    catch (err) {
-        // console.error("Could not Fetch employees..", err);
-        res.status(500).json({ message: "Internal server error" });
-    }
-});
+const {
+    getAllEmployees,
+    addEmployee,
+    getProfile,
+    updateEmployee,
+    deleteEmployee,
+    getMe,
+    getEmployeeStats,
+    getEmployeeDashboard,
+    debugEmployeeData
+} = require("../controllers/empController");
+
+const { authMiddleware } = require("../middleware/authMiddleware");
+
+router.get("/me", authMiddleware, getMe);
+
+// EMPLOYEE ROUTES
+
+router.get("/", getAllEmployees);
+router.post("/", addEmployee);
+
+router.get("/:id", getProfile);
+router.put("/:id", updateEmployee);
+router.delete("/:id", deleteEmployee);
+
+router.get("/stats/:id", getEmployeeStats);
+router.get("/dashboard/:id", getEmployeeDashboard);
+router.get("/debug/:id", debugEmployeeData);
+
+module.exports = router;

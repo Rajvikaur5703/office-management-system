@@ -2,28 +2,40 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 function AdminAttendance() {
-  // Simple data array - easy to manage or fetch from an API later
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const [attendanceData, setAttendanceData] = useState([]);
   const [editAttendance, seteditAttendance] = useState(null);
-  
+
   const token = localStorage.getItem("token");
   const fetchAttendance = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/attendance");
-      setAttendanceData(res.data);
+      const res = await axios.get(`${API_BASE_URL}/api/attendance`);
+      const todayAttendance = filterTodayAttendance(res.data);
+      setAttendanceData(todayAttendance);
     } catch (err) {
       console.log(err);
     }
   };
 
+  const filterTodayAttendance = (attendanceList) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return attendanceList.filter(record => {
+      const recordDate = new Date(record.date);
+      recordDate.setHours(0, 0, 0, 0);
+      return recordDate.getTime() === today.getTime();
+    });
+  };
+
   useEffect(() => {
     fetchAttendance();
   }, []);
-  
+
   const updateStatus = async (attendanceId, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/attendance/update-status/${attendanceId}`,
+        `${API_BASE_URL}/api/attendance/update-status/${attendanceId}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -34,6 +46,7 @@ function AdminAttendance() {
     }
   };
 
+
   return (
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -41,9 +54,9 @@ function AdminAttendance() {
           <h2 className="fw-bold text-dark">Attendance</h2>
           <p className="text-muted">Manage and view daily employee attendance records.</p>
         </div>
-        <button className="btn btn-primary shadow-sm">Download Report</button>
       </div>
 
+      {/* Attendance Table */}
       <div className="card shadow-sm border-0">
         <div className="card-body p-0">
           <div className="table-responsive">
@@ -52,7 +65,10 @@ function AdminAttendance() {
                 <tr>
                   <th className="ps-4">ID</th>
                   <th>Name</th>
+                  <th>Date</th>
                   <th>Status</th>
+                  <th>Check In</th>
+                  <th>Check Out</th>
                   <th>Hours</th>
                   <th className="text-end pe-4">Actions</th>
                 </tr>
@@ -60,8 +76,9 @@ function AdminAttendance() {
               <tbody>
                 {attendanceData.map((emp) => (
                   <tr key={emp._id} className="align-middle">
-                    <td>{emp._id}</td>
-                    <td>{emp.name}</td>
+                    <td>{emp._id.slice(-4)}</td>
+                    <td>{emp.employee?.name}</td>
+                    <td>{new Date(emp.date).toLocaleDateString()}</td>
                     <td>
                       {/* Using dynamic Bootstrap Badges for status colors */}
                       <span className={`badge rounded-pill ${emp.status === "Present" ? "bg-success-subtle text-success" :
@@ -71,28 +88,31 @@ function AdminAttendance() {
                         {emp.status}
                       </span>
                     </td>
+                    <td>{emp.checkIn || "--:--"}</td>
+                    <td>{emp.checkOut || "--:--"}</td>
                     <td>{emp.hours}</td>
                     <td className="text-end pe-4">
                       {editAttendance === emp._id ?
-                      (
-                        <div className="btn-group btn-group-sm">
-                          <button className={`btn ${emp.status === "Absent" ? "btn-warning" : "btn-outline-warning"}`}
-                            onClick={() => { updateStatus(emp._id, "Absent"); seteditAttendance(null); }}> Absent
-                          </button>
+                        (
+                          <div className="btn-group btn-group-sm">
+                            <button className={`btn ${emp.status === "Absent" ? "btn-danger" : "btn-outline-danger"}`}
+                              onClick={() => { updateStatus(emp._id, "Absent"); seteditAttendance(null); }}> Absent
+                            </button>
 
-                          <button className={`btn ${emp.status === "Present" ? "btn-success" : "btn-outline-success"}`}
-                            onClick={() => { updateStatus(emp._id, "Present"); seteditAttendance(null); }}> Present
-                          </button>
-                        </div>
-                      ) : (
-                         <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => seteditAttendance(emp._id)}>
+                            <button className={`btn ${emp.status === "Present" ? "btn-success" : "btn-outline-success"}`}
+                              onClick={() => { updateStatus(emp._id, "Present"); seteditAttendance(null); }}> Present
+                            </button>
+
+                            <button className={`btn ${emp.status === "HalfDay" ? "btn-info" : "btn-outline-info"}`}
+                              onClick={() => { updateStatus(emp._id, "HalfDay"); seteditAttendance(null); }}> Half Day
+                            </button>
+                          </div>
+                        ) : (
+                          <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => seteditAttendance(emp._id)}>
                             Edit
-                         </button>
-                        // <button className="btn btn-sm btn-outline-primary px-3" onClick={() => setEditingTaskId(task._id)}>
-                        //   Update
-                        // </button>
-                      )}
-                     
+                          </button>
+                        )}
+
                     </td>
                   </tr>
                 ))}

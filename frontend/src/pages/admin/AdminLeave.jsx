@@ -4,8 +4,10 @@ import axios from "axios";
 function AdminLeave() {
   const [leaves, setLeaves] = useState([]);
 
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
   const fetchLeaves = async () => {
-    const res = await axios.get("http://localhost:5000/api/leave");
+    const res = await axios.get(`${API_BASE_URL}/api/leave`);
     setLeaves(res.data);
   };
 
@@ -14,7 +16,7 @@ function AdminLeave() {
   }, []);
 
   const updateStatus = async (id, newStatus) => {
-    await axios.put(`http://localhost:5000/api/leave/${id}`, {
+    await axios.put(`${API_BASE_URL}/api/leave/${id}`, {
       status: newStatus,
     });
 
@@ -35,11 +37,12 @@ function AdminLeave() {
         <p className="text-muted">Review and manage employee leave applications.</p>
       </div>
 
-      <div className="card shadow-sm border-0">
+      <div className="card shadow-sm border-black-0">
         <div className="table-responsive">
           <table className="table table-hover align-middle mb-0">
             <thead className="table-light">
               <tr>
+                <th>Date of Request</th>
                 <th className="ps-4">Employee</th>
                 <th>Duration</th>
                 <th>Reason</th>
@@ -50,6 +53,9 @@ function AdminLeave() {
             <tbody>
               {leaves.map((leave) => (
                 <tr key={leave.id}>
+                  <td>
+                    {new Date(leave.createdAt || leave.date).toLocaleDateString()}
+                  </td>
                   <td className="ps-4 fw-bold">{leave.name}</td>
                   <td>
                     <div className="small text-muted">{new Date(leave.fromdate).toLocaleDateString()}</div>

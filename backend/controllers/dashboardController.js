@@ -1,37 +1,85 @@
-// This controller will talk to your existing User model (and a placeholder for Task and Attendance) to count the totals.
 const User = require('../models/User');
+const Task = require('../models/Task'); // make sure you have this model
+const Department = require('../models/Department');
+const Attendance = require('../models/Attendance');
 
+
+// 🔥 DASHBOARD STATS + CHART DATA
 exports.getAdminStats = async (req, res) => {
     try {
-        // 1. Count Total Employees
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(23, 59, 59, 999);
+
+        // Total Employees
         const totalEmployees = await User.countDocuments({ role: 'employee' });
+        // Total Tasks
+        const totalTasks = await Task.countDocuments();
+        // Pending Tasks
+        const pendingTasks = await Task.countDocuments({ status: 'pending' });
+        // Present Today (dummy for now)
+        const presentToday = await Attendance.countDocuments({ createdAt: { $gte: startOfDay, $lte: endOfDay }});
 
-        // 2. Placeholders for other stats (Update these as you build more models)
-        const totalTasks = 0; // await Task.countDocuments();
-        const presentToday = 0; 
-        const pendingTasks = 0;
+        // Employees per Department (for BAR chart)
+        const employees = await User.find({ role: 'employee' }).populate('department');
 
+        const employeesPerDept = {};
+        employees.forEach(emp => {
+            const dept = emp.department?.name || "Other";
+            employeesPerDept[dept] = (employeesPerDept[dept] || 0) + 1;
+        });
+
+        // Task Status (for PIE chart)
+        const tasks = await Task.find();
+
+        const taskStatus = {
+            pending: 0,
+            completed: 0,
+            "in-progress": 0
+        };
+
+        tasks.forEach(task => {
+            if (taskStatus[task.status] !== undefined) {
+                taskStatus[task.status]++;
+            }
+        });
+
+        // Final Response
         res.status(200).json({
             totalEmployees,
             totalTasks,
             presentToday,
-            pendingTasks
+            pendingTasks,
+            employeesPerDept, // for charts
+            taskStatus        // for charts
         });
+
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "Error fetching stats" });
     }
 };
 
+
+// IMPROVED RECENT ACTIVITY
 exports.getRecentActivity = async (req, res) => {
     try {
-        // For now, we return dummy activities. 
-        // Later, you can fetch from an 'ActivityLog' collection.
-        const activities = [
-            { message: "New Employee 'Rahul' joined IT", timestamp: new Date() },
-            { message: "Admin updated 'HR' Department", timestamp: new Date() },
-        ];
+        // Get latest employees
+        const recentUsers = await User.find()
+            .sort({ createdAt: -1 })
+            .limit(3);
+
+        const activities = recentUsers.map(user => ({
+            message: `${user.name} joined as ${user.role}`,
+            timestamp: user.createdAt
+        }));
+
         res.status(200).json(activities);
+
     } catch (error) {
         res.status(500).json({ message: "Error fetching activity" });
     }
 };
+
